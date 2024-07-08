@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Table, TableHead, TableBody, TableRow, TableCell, Typography,Button, } from '@mui/material';
-import {Print as PrintIcon, Description as DescriptionIcon } from '@mui/icons-material';
+import { Table, TableHead, TableBody, TableRow, TableCell, Typography, Button } from '@mui/material';
+import { Print as PrintIcon, Description as DescriptionIcon } from '@mui/icons-material';
 
 import useCustomerData from '../../useCustomerData'; // Import the custom hook
 import { exportTableToExcel } from '../../exportTableToExcel';
@@ -32,9 +32,11 @@ const ManufactureDetailsTable = () => {
   const handlePrint = () => {
     window.print();
   };
+
   const handleExport = () => {
     exportTableToExcel('orders-table', 'Orders'); // Assuming 'orders-table' is the id of your table
   };
+
   if (loading) return <Typography variant="h4">Loading...</Typography>;
   if (error) return <Typography variant="h4">Error fetching data: {error.message}</Typography>;
 
@@ -60,62 +62,62 @@ const ManufactureDetailsTable = () => {
         onClick={handleExport}
         sx={{ mb: 2 }}
       >
-          Export to Excel
+        Export to Excel
+      </Button>
 
-         </Button>
       <div className='printableArea'>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>Name</TableCell>
-            <TableCell>Order Date</TableCell>
-            <TableCell>Delivery Date</TableCell>
-            <TableCell>Delivery Time</TableCell>
-            <TableCell>Box Type</TableCell>
-            <TableCell>Sweet Name</TableCell>
-            <TableCell>Sweet Gram</TableCell>
-            <TableCell>Sweet Quantity</TableCell>
-            <TableCell>Box Quantity</TableCell>
-            <TableCell>Total Grams (kg)</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {customerData && customerData.length > 0 ? (
-            customerData.map((customer) => (
-              <React.Fragment key={customer.id}>
-                <TableRow>
-                  <TableCell>{customer.cname}</TableCell>
-                  <TableCell>{customer.odate}</TableCell>
-                  <TableCell>{customer.ddate}</TableCell>
-                  <TableCell>{customer.dtime}</TableCell>
-                  <TableCell>{customer.boxtype}</TableCell>
-                  <TableCell colSpan={4}>Main Sweets</TableCell>
-                </TableRow>
-                {customer.sweet.map((item, index) => (
-                  <TableRow key={`${customer.id}-${index}`}>
-                    {[...Array(5)].map((_, idx) => (
-                      <EmptyCell key={idx} />
-                    ))} {/* 5 empty cells */}
-                    <TableCell>{item.sweetname}</TableCell>
-                    <TableCell>{item.sweetgram}</TableCell>
-                    <TableCell>{item.sweetquantity}</TableCell>
-                    <TableCell>{customer.boxquantity}</TableCell>
-                    <TableCell>{calculateTotalGrams(customer.boxquantity, item.sweetgram, item.sweetquantity)}</TableCell>
-                  </TableRow>
-                ))}
-                <TableRow>
-                  <TableCell colSpan={9} align="right">Total KG for {customer.cname}</TableCell>
-                  <TableCell>{totalKgByCustomer[customer.id]?.toFixed(2)}</TableCell>
-                </TableRow>
-              </React.Fragment>
-            ))
-          ) : (
+        <Table id="orders-table">
+          <TableHead>
             <TableRow>
-              <TableCell colSpan={10}>No data available</TableCell>
+              <TableCell>Name</TableCell>
+              <TableCell>Order Date</TableCell>
+              <TableCell>Delivery Date</TableCell>
+              <TableCell>Delivery Time</TableCell>
+              <TableCell>Box Type</TableCell>
+              <TableCell>Sweet Name</TableCell>
+              <TableCell>Sweet Gram</TableCell>
+              <TableCell>Sweet Quantity</TableCell>
+              <TableCell>Box Quantity</TableCell>
+              <TableCell>Total Grams (kg)</TableCell>
             </TableRow>
-          )}
-        </TableBody>
-      </Table>
+          </TableHead>
+          <TableBody>
+            {customerData && customerData.length > 0 ? (
+              customerData.map((customer) => (
+                <React.Fragment key={customer.id}>
+                  <TableRow>
+                    <TableCell>{customer.cname}</TableCell>
+                    <TableCell>{customer.odate}</TableCell>
+                    <TableCell>{customer.ddate}</TableCell>
+                    <TableCell>{customer.dtime}</TableCell>
+                    <TableCell>{customer.boxtype}</TableCell>
+                    <TableCell colSpan={4}>Main Sweets</TableCell>
+                  </TableRow>
+                  {customer.sweet.map((item, index) => (
+                    <TableRow key={`${customer.id}-${index}`}>
+                      {[...Array(5)].map((_, idx) => (
+                        <EmptyCell key={idx} />
+                      ))}
+                      <TableCell>{item.sweetname}</TableCell>
+                      <TableCell>{item.sweetgram}</TableCell>
+                      <TableCell>{item.sweetquantity}</TableCell>
+                      <TableCell>{customer.boxquantity}</TableCell>
+                      <TableCell>{calculateTotalGrams(customer.boxquantity, item.sweetgram, item.sweetquantity)}</TableCell>
+                    </TableRow>
+                  ))}
+                  <TableRow>
+                    <TableCell colSpan={9} align="right">Total KG for {customer.cname}</TableCell>
+                    <TableCell>{totalKgByCustomer[customer.id]?.toFixed(2)}</TableCell>
+                  </TableRow>
+                </React.Fragment>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={10}>No data available</TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
       </div>
     </>
   );
