@@ -3,7 +3,7 @@ import './App.css';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import AddForm from './components/AddForm/AddForm';
 import CustomerDetailsTable from './components/CustomerDetailsTable/CustomerDetailsTable';
-import Dashboard from './components/Dashboard/Dashboard';
+// import Dashboard from './components/Dashboard/Dashboard';
 import Login from './components/Login/Login';
 import ManufactureDetailsTable from './components/ManufactureDetailsTable/ManufactureDetailsTable';
 import NavBar from './components/Navbar/Navbar';
@@ -23,8 +23,8 @@ function App() {
         <NavBar /> {/* Navbar will be displayed on all pages */}
         <div className="content">
           <Routes> {/* Wrapped Routes around Route components */}
-            <Route path="/" element={<Dashboard />} /> {/* Ensure element prop is provided */}
-            <Route path="/add" element={<AddForm />} /> {/* Ensure element prop is provided */}
+            <Route path="/" element={<AddForm />} /> {/* Ensure element prop is provided */}
+            {/* <Route path="/" element={<AddForm />} /> Ensure element prop is provided */}
             <Route
               path="/customerdetails"
               element={<CustomerDetailsTable totalKgByCustomer={totalKgByCustomer} />}
