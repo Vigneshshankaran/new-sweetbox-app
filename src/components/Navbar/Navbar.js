@@ -43,10 +43,10 @@ const Navbar = () => {
               open={Boolean(anchorEl)}
               onClose={handleMenuClose}
             >
-              <MenuItem onClick={handleMenuClose} component={NavLink} to="/" exact="true">
+              {/* <MenuItem onClick={handleMenuClose} component={NavLink} to="/" exact="true">
                 Dashboard
-              </MenuItem>
-              <MenuItem onClick={handleMenuClose} component={NavLink} to="/add">
+              </MenuItem> */}
+              <MenuItem onClick={handleMenuClose} component={NavLink} to="/">
                 AddForm
               </MenuItem>
               <MenuItem onClick={handleMenuClose} component={NavLink} to="/customerdetails">
