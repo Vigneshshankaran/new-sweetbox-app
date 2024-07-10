@@ -74,6 +74,8 @@ const ManufactureDetailsTable = () => {
               <TableCell>Delivery Date</TableCell>
               <TableCell>Delivery Time</TableCell>
               <TableCell>Box Type</TableCell>
+              <TableCell>Box Weight</TableCell>
+
               <TableCell>Sweet Name</TableCell>
               <TableCell>Sweet Gram</TableCell>
               <TableCell>Sweet Quantity</TableCell>
@@ -91,23 +93,26 @@ const ManufactureDetailsTable = () => {
                     <TableCell>{customer.ddate}</TableCell>
                     <TableCell>{customer.dtime}</TableCell>
                     <TableCell>{customer.boxtype}</TableCell>
+                    <TableCell>{customer.sweetweight}</TableCell>
                     <TableCell colSpan={4}>Main Sweets</TableCell>
                   </TableRow>
                   {customer.sweet.map((item, index) => (
                     <TableRow key={`${customer.id}-${index}`}>
-                      {[...Array(5)].map((_, idx) => (
+                      {[...Array(6)].map((_, idx) => (
                         <EmptyCell key={idx} />
                       ))}
                       <TableCell>{item.sweetname}</TableCell>
                       <TableCell>{item.sweetgram}</TableCell>
                       <TableCell>{item.sweetquantity}</TableCell>
                       <TableCell>{customer.boxquantity}</TableCell>
-                      <TableCell>{calculateTotalGrams(customer.boxquantity, item.sweetgram, item.sweetquantity)}</TableCell>
+                
+
+                      <TableCell>{calculateTotalGrams(customer.boxquantity, item.sweetgram, item.sweetquantity)} kg</TableCell>
                     </TableRow>
                   ))}
                   <TableRow>
                     <TableCell colSpan={9} align="right">Total KG for {customer.cname}</TableCell>
-                    <TableCell>{totalKgByCustomer[customer.id]?.toFixed(2)}</TableCell>
+                    <TableCell>{totalKgByCustomer[customer.id]?.toFixed(2)} kg</TableCell>
                   </TableRow>
                 </React.Fragment>
               ))

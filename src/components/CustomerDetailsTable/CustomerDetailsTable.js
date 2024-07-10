@@ -77,6 +77,7 @@ const CustomerDetailsTable = () => {
               <TableCell>Delivery Time</TableCell>
               <TableCell>Box Type</TableCell>
               <TableCell>Box Quantity</TableCell>
+              <TableCell>Box Weight</TableCell>
               <TableCell>Sweet Name</TableCell>
               <TableCell>Sweet Gram</TableCell>
               <TableCell>Sweet Quantity</TableCell>
@@ -96,11 +97,12 @@ const CustomerDetailsTable = () => {
                     <TableCell>{customer.dtime}</TableCell>
                     <TableCell>{customer.boxtype}</TableCell>
                     <TableCell>{customer.boxquantity}</TableCell>
+                    <TableCell>{customer.sweetweight}</TableCell>
                     <TableCell colSpan={3}>Main Sweets</TableCell>
                     <TableCell>
                       {customer.sweet.reduce((totalKg, item) => {
                         return totalKg + (item.sweetgram * item.sweetquantity * customer.boxquantity) / 1000;
-                      }, 0).toFixed(2)}
+                      }, 0).toFixed(2)} Kg
                     </TableCell>
                     <TableCell>
                    <IconButton color="primary" component={Link} to={`/editpost/${customer.id}`}>
@@ -114,7 +116,7 @@ const CustomerDetailsTable = () => {
                   </TableRow>
                   {customer.sweet.map((item, index) => (
                     <TableRow key={`${customer.id}-${index}`}>
-                      {[...Array(7)].map((_, i) => <EmptyCell key={i} />)}
+                      {[...Array(8)].map((_, i) => <EmptyCell key={i} />)}
                       <TableCell>{item.sweetname}</TableCell>
                       <TableCell>{item.sweetgram}</TableCell>
                       <TableCell>{item.sweetquantity}</TableCell>
