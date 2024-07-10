@@ -3,11 +3,12 @@ import './App.css';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import AddForm from './components/AddForm/AddForm';
 import CustomerDetailsTable from './components/CustomerDetailsTable/CustomerDetailsTable';
-// import Dashboard from './components/Dashboard/Dashboard';
 import Login from './components/Login/Login';
 import ManufactureDetailsTable from './components/ManufactureDetailsTable/ManufactureDetailsTable';
 import NavBar from './components/Navbar/Navbar';
-import NotFound from '../src/pages/NotFound/NotFound';
+import NotFound from './pages/NotFound/NotFound'; // Corrected path to NotFound component
+import ProductionPage from './components/ProductionPage';
+import EditPost from './components/EditPost';
 // import Footer from './components/Footer/Footer';
 
 function App() {
@@ -24,7 +25,6 @@ function App() {
         <div className="content">
           <Routes> {/* Wrapped Routes around Route components */}
             <Route path="/" element={<AddForm />} /> {/* Ensure element prop is provided */}
-            {/* <Route path="/" element={<AddForm />} /> Ensure element prop is provided */}
             <Route
               path="/customerdetails"
               element={<CustomerDetailsTable totalKgByCustomer={totalKgByCustomer} />}
@@ -33,6 +33,9 @@ function App() {
               path="/manufacturedetails"
               element={<ManufactureDetailsTable onTotalKgCalculated={handleTotalKgCalculated} />}
             /> {/* Ensure element prop is provided */}
+            <Route path="/production" element={<ProductionPage />} /> {/* Corrected element prop */}
+            <Route path="/editpost/:id" element={<EditPost />} />
+
             <Route path="/login" element={<Login />} /> {/* Ensure element prop is provided */}
             <Route path="*" element={<NotFound />} /> {/* Catch-all route for 404 Not Found page */}
           </Routes>

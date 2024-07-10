@@ -1,13 +1,15 @@
-import React from 'react';
-import { Table, TableHead, TableBody, TableRow, TableCell, Typography, IconButton, Button } from '@mui/material';
-import { Delete as DeleteIcon, Print as PrintIcon, Description as DescriptionIcon } from '@mui/icons-material';
+import React, { useState } from 'react';
+import { Box, Table, TableHead, TableBody, TableRow, TableCell, Typography, IconButton, Button, TextField } from '@mui/material';
+import { Delete as DeleteIcon, Print as PrintIcon, Description as DescriptionIcon, Edit as EditIcon } from '@mui/icons-material';
 import useCustomerData from '../../useCustomerData'; // Import the custom hook
 import { exportTableToExcel } from '../../exportTableToExcel';
+import { Link } from 'react-router-dom';
 
 const EmptyCell = () => <TableCell />;
 
 const CustomerDetailsTable = () => {
   const { customerData, loading, error, deleteCustomer } = useCustomerData();
+  const [search, setSearch] = useState('');
 
   const handleDelete = (customerId) => {
     deleteCustomer(customerId); // Assume deleteCustomer is a function from your custom hook to delete a customer
@@ -21,6 +23,14 @@ const CustomerDetailsTable = () => {
     exportTableToExcel('orders-table', 'Orders'); // Assuming 'orders-table' is the id of your table
   };
 
+  const filteredData = customerData && customerData.filter((customer) =>
+    customer.cname.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const handleSearchChange = (event) => {
+    setSearch(event.target.value);
+  };
+
   if (loading) return <Typography variant="h4">Loading...</Typography>;
   if (error) return <Typography variant="h4">Error fetching data: {error.message}</Typography>;
 
@@ -29,12 +39,21 @@ const CustomerDetailsTable = () => {
       <Typography variant="h4" gutterBottom>
         Customer Details
       </Typography>
+      <Box sx={{ width: '100%', maxWidth: 400, margin: 'auto', display: 'flex', justifyContent: 'flex-end' }}>
+        <TextField
+          label="Search by Name"
+          variant="outlined"
+          value={search}
+          onChange={handleSearchChange}
+          sx={{ width: '100%', margin: 2 }}
+        />
+      </Box>
       <Button
         variant="contained"
         color="primary"
         startIcon={<PrintIcon />}
         onClick={handlePrint}
-        sx={{ mb: 2, marginRight: 2 }}
+        sx={{ marginBottom: 2, marginRight: 2 }}
       >
         Print
       </Button>
@@ -43,7 +62,7 @@ const CustomerDetailsTable = () => {
         color="primary"
         startIcon={<DescriptionIcon />}
         onClick={handleExport}
-        sx={{ mb: 2 }}
+        sx={{ marginBottom: 2 }}
       >
         Export to Excel
       </Button>
@@ -62,12 +81,12 @@ const CustomerDetailsTable = () => {
               <TableCell>Sweet Gram</TableCell>
               <TableCell>Sweet Quantity</TableCell>
               <TableCell>Total Kilograms</TableCell>
-              <TableCell className='action-button'>Delete</TableCell>
+              <TableCell className='action-button'>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {customerData && customerData.length > 0 ? (
-              customerData.map((customer) => (
+            {filteredData && filteredData.length > 0 ? (
+              filteredData.map((customer) => (
                 <React.Fragment key={customer.id}>
                   <TableRow>
                     <TableCell>{customer.cname}</TableCell>
@@ -84,7 +103,11 @@ const CustomerDetailsTable = () => {
                       }, 0).toFixed(2)}
                     </TableCell>
                     <TableCell>
-                      <IconButton color="error" className='action-button' onClick={() => handleDelete(customer.id)}>
+                   <IconButton color="primary" component={Link} to={`/editpost/${customer.id}`}>
+  <EditIcon />
+</IconButton>
+
+                      <IconButton color="error" onClick={() => handleDelete(customer.id)}>
                         <DeleteIcon />
                       </IconButton>
                     </TableCell>
