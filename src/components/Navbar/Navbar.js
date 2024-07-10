@@ -43,9 +43,9 @@ const Navbar = () => {
               open={Boolean(anchorEl)}
               onClose={handleMenuClose}
             >
-              {/* <MenuItem onClick={handleMenuClose} component={NavLink} to="/" exact="true">
-                Dashboard
-              </MenuItem> */}
+               <MenuItem onClick={handleMenuClose} component={NavLink} to="/production" exact="true">
+               Production
+              </MenuItem> 
               <MenuItem onClick={handleMenuClose} component={NavLink} to="/">
                 AddForm
               </MenuItem>
