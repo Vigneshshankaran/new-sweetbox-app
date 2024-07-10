@@ -92,7 +92,7 @@ const ProductionPage = () => {
                 </TableCell>
               ) : null}
               <TableCell sx={{ borderBottom: '1px solid #e0e0e0', padding: '8px', textAlign: 'left' }}>{item.sweetName}</TableCell>
-              <TableCell sx={{ borderBottom: '1px solid #e0e0e0', padding: '8px', textAlign: 'left' }}>{item.totalKg.toFixed(2)}</TableCell>
+              <TableCell sx={{ borderBottom: '1px solid #e0e0e0', padding: '8px', textAlign: 'left' }}>{item.totalKg.toFixed(2)} kg</TableCell>
             </TableRow>
           ))}
         </TableBody>
