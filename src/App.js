@@ -27,7 +27,7 @@ function App() {
             <Route path="/" element={<AddForm />} /> {/* Ensure element prop is provided */}
             <Route
               path="/customerdetails"
-              element={<CustomerDetailsTable totalKgByCustomer={totalKgByCustomer} />}
+              element={<CustomerDetailsTable totalKgByCustomer={totalKgByCustomer}  />}
             /> {/* Ensure element prop is provided */}
             <Route
               path="/manufacturedetails"

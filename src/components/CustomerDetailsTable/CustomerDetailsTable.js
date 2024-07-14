@@ -106,6 +106,7 @@ const CustomerDetailsTable = () => {
                     </TableCell>
                     <TableCell>
                    <IconButton color="primary" component={Link} to={`/editpost/${customer.id}`}>
+                   
   <EditIcon />
 </IconButton>
 
