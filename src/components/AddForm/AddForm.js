@@ -20,18 +20,19 @@ const AddForm = () => {
     sweet: [{ sweetname: '', sweetgram: '', sweetquantity: '1' }],
     cuboxtype: '',
     cusweetweight: '',
+    isCustomEntry: false,
   });
 
   const navigate = useNavigate();
 
-   useEffect(() => {
+  useEffect(() => {
     if (formData.boxtype && formData.sweetweight) {
       const selectedBox = data.find(
         (box) => box.boxtype === formData.boxtype && box.sweetweight === formData.sweetweight
       );
       if (selectedBox) {
         setFormData((prevFormData) => ({
-         ...prevFormData,
+          ...prevFormData,
           sweet: selectedBox.sweets.map((sweet) => ({
             sweetname: sweet.sweetname,
             sweetgram: sweet.sweetgram,
@@ -41,14 +42,13 @@ const AddForm = () => {
       } else {
         // If no matching box found, reset sweets
         setFormData((prevFormData) => ({
-         ...prevFormData,
+          ...prevFormData,
           sweet: [{ sweetname: '', sweetgram: '', sweetquantity: '1' }],
         }));
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formData.boxtype, formData.sweetweight]); 
-  
+  }, [formData.boxtype, formData.sweetweight]);
 
   // Handle form input changes
   const handleChange = (e) => {
@@ -56,6 +56,7 @@ const AddForm = () => {
     setFormData((prevFormData) => ({
       ...prevFormData,
       [name]: value,
+      isCustomEntry: formData.boxtype === 'customEntry' || formData.sweetweight === 'customWeight',
     }));
   };
 
@@ -103,6 +104,7 @@ const AddForm = () => {
           boxquantity: formData.boxquantity,
           sweetweight: formData.sweetweight === 'customWeight' ? formData.cusweetweight : formData.sweetweight,
           sweet: formData.sweet,
+          isCustomEntry: formData.isCustomEntry,
         },
         {
           headers: {
@@ -124,6 +126,7 @@ const AddForm = () => {
         sweet: [{ sweetname: '', sweetgram: '', sweetquantity: '1' }],
         cuboxtype: '',
         cusweetweight: '',
+        isCustomEntry: false,
       });
       // Notify user of successful data addition
       toast.success('Data added successfully!');

@@ -23,9 +23,9 @@ const CustomerDetailsTable = () => {
     exportTableToExcel('orders-table', 'Orders'); // Assuming 'orders-table' is the id of your table
   };
 
-  const filteredData = customerData && customerData.filter((customer) =>
-    customer.cname.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredData = customerData && customerData
+    .filter((customer) => customer.cname.toLowerCase().includes(search.toLowerCase()))
+    .sort((a, b) => new Date(a.ddate) - new Date(b.ddate)); // Sort by order date
 
   const handleSearchChange = (event) => {
     setSearch(event.target.value);
@@ -98,36 +98,35 @@ const CustomerDetailsTable = () => {
                     <TableCell>{customer.boxtype}</TableCell>
                     <TableCell>{customer.boxquantity}</TableCell>
                     <TableCell>{customer.sweetweight}</TableCell>
-                    <TableCell colSpan={3}>Main Sweets</TableCell>
+                    <TableCell colSpan={3}>{customer.isCustomEntry ? 'Custom Sweets' : 'Main Sweets'}</TableCell>
                     <TableCell>
                       {customer.sweet.reduce((totalKg, item) => {
                         return totalKg + (item.sweetgram * item.sweetquantity * customer.boxquantity) / 1000;
                       }, 0).toFixed(2)} Kg
                     </TableCell>
                     <TableCell>
-                   <IconButton color="primary" component={Link} to={`/editpost/${customer.id}`}>
-                   
-  <EditIcon />
-</IconButton>
-
+                      <IconButton color="primary" component={Link} to={`/editpost/${customer.id}`}>
+                        <EditIcon />
+                      </IconButton>
                       <IconButton color="error" onClick={() => handleDelete(customer.id)}>
                         <DeleteIcon />
                       </IconButton>
                     </TableCell>
                   </TableRow>
-                  {customer.sweet.map((item, index) => (
+                  {customer.isCustomEntry && customer.sweet.map((item, index) => (
                     <TableRow key={`${customer.id}-${index}`}>
                       {[...Array(8)].map((_, i) => <EmptyCell key={i} />)}
                       <TableCell>{item.sweetname}</TableCell>
                       <TableCell>{item.sweetgram}</TableCell>
                       <TableCell>{item.sweetquantity}</TableCell>
+                      <EmptyCell />
                     </TableRow>
                   ))}
                 </React.Fragment>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={12}>No data available</TableCell>
+                <TableCell colSpan={13}>No data available</TableCell>
               </TableRow>
             )}
           </TableBody>
