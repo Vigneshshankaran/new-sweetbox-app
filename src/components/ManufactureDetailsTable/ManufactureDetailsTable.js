@@ -1,9 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { Table, TableHead, TableBody, TableRow, TableCell, Typography, Button } from '@mui/material';
+import { Table, TableHead, TableBody, TableRow, TableCell, Typography, Button, tableCellClasses } from '@mui/material';
 import { Print as PrintIcon, Description as DescriptionIcon } from '@mui/icons-material';
-
+import { styled } from '@mui/material/styles';
 import useCustomerData from '../../useCustomerData'; // Import the custom hook
 import { exportTableToExcel } from '../../exportTableToExcel';
+
+const StyledTableCell = styled(TableCell)(({ theme }) => ({
+  [`&.${tableCellClasses.head}`]: {
+    backgroundColor: theme.palette.primary.dark,    // MUI default blue
+    color: theme.palette.common.white,
+  },
+  [`&.${tableCellClasses.body}`]: {
+    fontSize: 14,
+  },
+}));
 
 const EmptyCell = () => <TableCell />;
 
@@ -20,9 +30,17 @@ const ManufactureDetailsTable = () => {
       const newTotalKgByCustomer = {};
 
       customerData.forEach((customer) => {
-        newTotalKgByCustomer[customer.id] = customer.sweet.reduce((total, item) => {
+        let totalKg = customer.sweet.reduce((total, item) => {
           return total + calculateTotalGrams(customer.boxquantity, item.sweetgram, item.sweetquantity);
         }, 0);
+
+        customer.subForms.forEach((subForm) => {
+          totalKg += subForm.sweet.reduce((total, item) => {
+            return total + calculateTotalGrams(subForm.boxquantity, item.sweetgram, item.sweetquantity);
+          }, 0);
+        });
+
+        newTotalKgByCustomer[customer.id] = totalKg;
       });
 
       setTotalKgByCustomer(newTotalKgByCustomer);
@@ -34,7 +52,7 @@ const ManufactureDetailsTable = () => {
   };
 
   const handleExport = () => {
-    exportTableToExcel('orders-table', 'Orders'); // Assuming 'orders-table' is the id of your table
+    exportTableToExcel('orders-table', 'Orders');
   };
 
   if (loading) return <Typography variant="h4">Loading...</Typography>;
@@ -69,18 +87,17 @@ const ManufactureDetailsTable = () => {
         <Table id="orders-table">
           <TableHead>
             <TableRow>
-              <TableCell>Name</TableCell>
-              <TableCell>Order Date</TableCell>
-              <TableCell>Delivery Date</TableCell>
-              <TableCell>Delivery Time</TableCell>
-              <TableCell>Box Type</TableCell>
-              <TableCell>Box Weight</TableCell>
-
-              <TableCell>Sweet Name</TableCell>
-              <TableCell>Sweet Gram</TableCell>
-              <TableCell>Sweet Quantity</TableCell>
-              <TableCell>Box Quantity</TableCell>
-              <TableCell>Total Grams (kg)</TableCell>
+              <StyledTableCell>Name</StyledTableCell>
+              <StyledTableCell>Order Date</StyledTableCell>
+              <StyledTableCell>Delivery Date</StyledTableCell>
+              <StyledTableCell>Delivery Time</StyledTableCell>
+              <StyledTableCell>Box Type</StyledTableCell>
+              <StyledTableCell>Box Weight</StyledTableCell>
+              <StyledTableCell>Sweet Name</StyledTableCell>
+              <StyledTableCell>Sweet Gram</StyledTableCell>
+              <StyledTableCell>Sweet Quantity</StyledTableCell>
+              <StyledTableCell>Box Quantity</StyledTableCell>
+              <StyledTableCell>Total Grams (kg)</StyledTableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -92,8 +109,8 @@ const ManufactureDetailsTable = () => {
                     <TableCell>{customer.odate}</TableCell>
                     <TableCell>{customer.ddate}</TableCell>
                     <TableCell>{customer.dtime}</TableCell>
-                    <TableCell>{customer.boxtype}</TableCell>
-                    <TableCell>{customer.sweetweight}</TableCell>
+                    <TableCell>{customer.boxtype === 'customEntry' ? customer.cuboxtype : customer.boxtype}</TableCell>
+                    <TableCell>{customer.sweetweight === 'customWeight' ? customer.cusweetweight : customer.sweetweight}</TableCell>
                     <TableCell colSpan={4}>Main Sweets</TableCell>
                   </TableRow>
                   {customer.sweet.map((item, index) => (
@@ -105,10 +122,28 @@ const ManufactureDetailsTable = () => {
                       <TableCell>{item.sweetgram}</TableCell>
                       <TableCell>{item.sweetquantity}</TableCell>
                       <TableCell>{customer.boxquantity}</TableCell>
-                
-
                       <TableCell>{calculateTotalGrams(customer.boxquantity, item.sweetgram, item.sweetquantity)} kg</TableCell>
                     </TableRow>
+                  ))}
+                  {customer.subForms.map((subForm, subIndex) => (
+                    <React.Fragment key={`${customer.id}-subform-${subIndex}`}>
+                      <TableRow>
+                        <TableCell colSpan={6} />
+                        <TableCell colSpan={5}>Sub Menu {subIndex + 1}</TableCell>
+                      </TableRow>
+                      {subForm.sweet.map((item, index) => (
+                        <TableRow key={`${customer.id}-subform-${subIndex}-${index}`}>
+                          {[...Array(6)].map((_, idx) => (
+                            <EmptyCell key={idx} />
+                          ))}
+                          <TableCell>{item.sweetname}</TableCell>
+                          <TableCell>{item.sweetgram}</TableCell>
+                          <TableCell>{item.sweetquantity}</TableCell>
+                          <TableCell>{subForm.boxquantity}</TableCell>
+                          <TableCell>{calculateTotalGrams(subForm.boxquantity, item.sweetgram, item.sweetquantity)} kg</TableCell>
+                        </TableRow>
+                      ))}
+                    </React.Fragment>
                   ))}
                   <TableRow>
                     <TableCell colSpan={9} align="right">Total KG for {customer.cname}</TableCell>

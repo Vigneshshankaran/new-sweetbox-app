@@ -5,6 +5,7 @@ import { AddCircleOutline, RemoveCircleOutline } from '@mui/icons-material';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import SubMenu from '../components/AddForm/SubMenu';
 
 const EditPost = () => {
   const [formData, setFormData] = useState({
@@ -17,6 +18,7 @@ const EditPost = () => {
     boxquantity: '',
     sweetweight: '',
     sweet: [{ sweetname: '', sweetgram: '', sweetquantity: '1' }],
+    subForms: [] // Ensure subForms is initialized as an empty array
   });
 
   const navigate = useNavigate();
@@ -37,6 +39,7 @@ const EditPost = () => {
           boxquantity: postData.boxquantity,
           sweetweight: postData.sweetweight,
           sweet: postData.sweet,
+          subForms: postData.subForms || [] // Ensure subForms is handled
         });
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -79,6 +82,13 @@ const EditPost = () => {
     });
   };
 
+  const handleSubFormChange = (updatedSubForms) => {
+    setFormData({
+      ...formData,
+      subForms: updatedSubForms,
+    });
+  };
+
   const notify = () => toast.success('Data Updated successfully!');
 
   const handleSubmit = async (e) => {
@@ -109,7 +119,6 @@ const EditPost = () => {
             onChange={handleChange}
             label="Customer Name"
             required
-            defaultValue={id}
           />
         </Grid>
         <Grid item xs={12} sm={6}>
@@ -198,64 +207,85 @@ const EditPost = () => {
             </Select>
           </FormControl>
         </Grid>
-        {formData.sweet.map((sweet, index) => (
-          <React.Fragment key={index}>
-            <Grid item xs={12} sm={4}>
-              <TextField
-                fullWidth
-                type="text"
-                name={`sweetname-${index}`}
-                value={sweet.sweetname}
-                onChange={(e) => handleSweetChange(index, 'sweetname', e.target.value)}
-                label={`Sweet Name ${index + 1}`}
-                required
-              />
+        {formData.sweetweight === 'customWeight' && (
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              type="text"
+              name="cusweetweight"
+              value={formData.cusweetweight}
+              onChange={handleChange}
+              label="Custom Sweet Weight"
+              required
+            />
+          </Grid>
+        )}
+        <Grid item xs={12}>
+          <SubMenu
+            subFormData={formData.subForms}
+            handleSubFormChange={handleSubFormChange}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          {formData.sweet.map((sweet, index) => (
+            <Grid container spacing={2} key={index}>
+              <Grid item xs={12} sm={4}>
+                <TextField
+                  fullWidth
+                  type="text"
+                  name={`sweetname-${index}`}
+                  value={sweet.sweetname}
+                  onChange={(e) => handleSweetChange(index, 'sweetname', e.target.value)}
+                  label={`Sweet Name ${index + 1}`}
+                  required
+                />
+              </Grid>
+              <Grid item xs={12} sm={4}>
+                <TextField
+                  fullWidth
+                  type="number"
+                  name={`sweetgram-${index}`}
+                  value={sweet.sweetgram}
+                  onChange={(e) => handleSweetChange(index, 'sweetgram', e.target.value)}
+                  label={`Sweet Gram ${index + 1}`}
+                  required
+                />
+              </Grid>
+              <Grid item xs={12} sm={3}>
+                <TextField
+                  fullWidth
+                  type="number"
+                  name={`sweetquantity-${index}`}
+                  value={sweet.sweetquantity}
+                  onChange={(e) => handleSweetChange(index, 'sweetquantity', e.target.value)}
+                  label={`Sweet Quantity ${index + 1}`}
+                  required
+                />
+              </Grid>
+              <Grid item xs={12} sm={1}>
+                {index === 0 ? (
+                  <IconButton
+                    type="button"
+                    onClick={handleAddSweetField}
+                    color="primary"
+                    aria-label="add"
+                  >
+                    <AddCircleOutline />
+                  </IconButton>
+                ) : (
+                  <IconButton
+                    type="button"
+                    onClick={() => handleRemoveSweetField(index)}
+                    color="secondary"
+                    aria-label="remove"
+                  >
+                    <RemoveCircleOutline />
+                  </IconButton>
+                )}
+              </Grid>
             </Grid>
-            <Grid item xs={12} sm={4}>
-              <TextField
-                fullWidth
-                type="number"
-                name={`sweetgram-${index}`}
-                value={sweet.sweetgram}
-                onChange={(e) => handleSweetChange(index, 'sweetgram', e.target.value)}
-                label={`Sweet Gram ${index + 1}`}
-                required
-              />
-            </Grid>
-            <Grid item xs={12} sm={3}>
-              <TextField
-                fullWidth
-                type="number"
-                name={`sweetquantity-${index}`}
-                value={sweet.sweetquantity}
-                onChange={(e) => handleSweetChange(index, 'sweetquantity', e.target.value)}
-                label={`Sweet Quantity ${index + 1}`}
-                required
-              />
-            </Grid>
-            <Grid item xs={12} sm={1}>
-              {index === 0 ? (
-                <IconButton
-                  type="button"
-                  onClick={handleAddSweetField}
-                  color="primary"
-                  aria-label="add"
-                >
-                  <AddCircleOutline />
-                </IconButton>
-              ) : (
-                <IconButton
-                  type="button"
-                  onClick={() => handleRemoveSweetField(index)}
-                  color="secondary"
-                  aria-label="remove"
-                >
-                  <RemoveCircleOutline />
-                </IconButton>
-              )}
-            </Grid>
-          </React.Fragment>
-        ))}
+          ))}
+        </Grid>
       </Grid>
 
       <Button type="submit" variant="contained" color="primary" sx={{ mt: 2 }}>
@@ -267,4 +297,3 @@ const EditPost = () => {
 };
 
 export default EditPost;
-

@@ -1,5 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { Typography, Table, TableHead, TableBody, TableRow, TableCell } from '@mui/material';
+import { styled } from '@mui/material/styles';
+
+const StyledTableCell = styled(TableCell)(({ theme }) => ({
+  '&.MuiTableCell-head': {
+    backgroundColor: theme.palette.primary.dark,
+    color: theme.palette.common.white,
+  },
+  '&.MuiTableCell-body': {
+    fontSize: 14,
+  },
+}));
 
 const useCustomerData = () => {
   const [customerData, setCustomerData] = useState([]);
@@ -29,6 +40,33 @@ const calculateTotalGrams = (boxQuantity, sweetGram, sweetQuantity) => {
   return (boxQuantity * sweetGram * sweetQuantity) / 1000; // Convert to kilograms
 };
 
+const aggregateSweetData = (aggregatedData, sweet, boxQuantity, deliveryDate) => {
+  const sweetName = sweet.sweetname.trim();
+  let sweetGram = parseFloat(sweet.sweetgram);
+  const sweetQuantity = parseInt(sweet.sweetquantity, 10);
+
+  // Handle decimal values like '0.20 gm'
+  if (sweet.sweetweight) {
+    const weightParts = sweet.sweetweight.split(' ');
+    if (weightParts.length === 2 && weightParts[1] === 'gm') {
+      sweetGram += parseFloat(weightParts[0]) / 1000;
+    }
+  }
+
+  const totalKg = calculateTotalGrams(boxQuantity, sweetGram, sweetQuantity);
+  const key = `${deliveryDate}-${sweetName}`;
+
+  if (aggregatedData[key]) {
+    aggregatedData[key].totalKg += totalKg;
+  } else {
+    aggregatedData[key] = {
+      sweetName,
+      deliveryDate,
+      totalKg,
+    };
+  }
+};
+
 const ProductionPage = () => {
   const { customerData, loading, error } = useCustomerData();
   const [productionData, setProductionData] = useState([]);
@@ -42,26 +80,20 @@ const ProductionPage = () => {
         const boxQuantity = parseInt(customer.boxquantity, 10);
 
         customer.sweet.forEach((sweet) => {
-          const sweetName = sweet.sweetname.trim();
-          const sweetGram = parseFloat(sweet.sweetgram);
-          const sweetQuantity = parseInt(sweet.sweetquantity, 10);
-          const totalKg = calculateTotalGrams(boxQuantity, sweetGram, sweetQuantity);
-
-          const key = `${deliveryDate}-${sweetName}`;
-          if (aggregatedData[key]) {
-            aggregatedData[key].totalKg += totalKg;
-          } else {
-            aggregatedData[key] = {
-              sweetName,
-              deliveryDate,
-              totalKg,
-            };
-          }
+          aggregateSweetData(aggregatedData, sweet, boxQuantity, deliveryDate);
         });
+
+        if (customer.subForms) {
+          customer.subForms.forEach((subForm) => {
+            const subFormBoxQuantity = parseInt(subForm.boxquantity, 10);
+            subForm.sweet.forEach((sweet) => {
+              aggregateSweetData(aggregatedData, sweet, subFormBoxQuantity, deliveryDate);
+            });
+          });
+        }
       });
 
       const groupedData = Object.values(aggregatedData);
-      // Sort by deliveryDate (assuming date is in ISO format yyyy-mm-dd)
       groupedData.sort((a, b) => new Date(a.deliveryDate) - new Date(b.deliveryDate));
       setProductionData(groupedData);
     }
@@ -78,21 +110,21 @@ const ProductionPage = () => {
       <Table sx={{ width: '100%', border: '1px solid #e0e0e0', borderCollapse: 'collapse' }}>
         <TableHead>
           <TableRow>
-            <TableCell sx={{ borderBottom: '1px solid #e0e0e0', padding: '8px', textAlign: 'left' }}>Delivery Date</TableCell>
-            <TableCell sx={{ borderBottom: '1px solid #e0e0e0', padding: '8px', textAlign: 'left' }}>Sweet Name</TableCell>
-            <TableCell sx={{ borderBottom: '1px solid #e0e0e0', padding: '8px', textAlign: 'left' }}>Total Kilograms</TableCell>
+            <StyledTableCell>Delivery Date</StyledTableCell>
+            <StyledTableCell>Sweet Name</StyledTableCell>
+            <StyledTableCell>Total Kilograms</StyledTableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {productionData.map((item, index) => (
             <TableRow key={index}>
               {index === 0 || productionData[index - 1].deliveryDate !== item.deliveryDate ? (
-                <TableCell sx={{ borderBottom: '1px solid #e0e0e0', padding: '8px', textAlign: 'left' }} rowSpan={productionData.filter(data => data.deliveryDate === item.deliveryDate).length}>
+                <TableCell rowSpan={productionData.filter(data => data.deliveryDate === item.deliveryDate).length}>
                   {item.deliveryDate}
                 </TableCell>
               ) : null}
-              <TableCell sx={{ borderBottom: '1px solid #e0e0e0', padding: '8px', textAlign: 'left' }}>{item.sweetName}</TableCell>
-              <TableCell sx={{ borderBottom: '1px solid #e0e0e0', padding: '8px', textAlign: 'left' }}>{item.totalKg.toFixed(2)} kg</TableCell>
+              <TableCell>{item.sweetName}</TableCell>
+              <TableCell>{item.totalKg.toFixed(2)} kg</TableCell>
             </TableRow>
           ))}
         </TableBody>

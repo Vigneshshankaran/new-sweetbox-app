@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { TextField, Button, Select, MenuItem, InputLabel, FormControl, Grid, IconButton } from '@mui/material';
+import { TextField, Button, Select, MenuItem, InputLabel, FormControl, Grid, IconButton, CircularProgress } from '@mui/material';
 import { AddCircleOutline, RemoveCircleOutline } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import data from '../../data'; // Assuming you have data imported with menu and sweet information
+import data from '../../data';
+import SubMenu from './SubMenu';
 
 const AddForm = () => {
   const [formData, setFormData] = useState({
@@ -18,11 +19,14 @@ const AddForm = () => {
     boxquantity: '',
     sweetweight: '',
     sweet: [{ sweetname: '', sweetgram: '', sweetquantity: '1' }],
+    subForms: [],
     cuboxtype: '',
     cusweetweight: '',
     isCustomEntry: false,
   });
 
+  const [subForms, setSubForms] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -40,17 +44,14 @@ const AddForm = () => {
           })),
         }));
       } else {
-        // If no matching box found, reset sweets
         setFormData((prevFormData) => ({
           ...prevFormData,
           sweet: [{ sweetname: '', sweetgram: '', sweetquantity: '1' }],
         }));
       }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formData.boxtype, formData.sweetweight]);
 
-  // Handle form input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevFormData) => ({
@@ -60,8 +61,7 @@ const AddForm = () => {
     }));
   };
 
-  // Handle changes in individual sweet fields
-  const handleSweetChange = (index, field, value) => {
+  const handleSweetChangeMain = (index, field, value) => {
     const newSweets = [...formData.sweet];
     newSweets[index][field] = value;
     setFormData((prevFormData) => ({
@@ -70,16 +70,14 @@ const AddForm = () => {
     }));
   };
 
-  // Add a new sweet field
-  const handleAddSweetField = () => {
+  const handleAddSweetFieldMain = () => {
     setFormData((prevFormData) => ({
       ...prevFormData,
       sweet: [...prevFormData.sweet, { sweetname: '', sweetgram: '', sweetquantity: '1' }],
     }));
   };
 
-  // Remove a sweet field
-  const handleRemoveSweetField = (index) => {
+  const handleRemoveSweetFieldMain = (index) => {
     const newSweets = [...formData.sweet];
     newSweets.splice(index, 1);
     setFormData((prevFormData) => ({
@@ -88,23 +86,43 @@ const AddForm = () => {
     }));
   };
 
-  // Submit form data
+  const handleAddSubForm = () => {
+    setSubForms((prev) => [
+      ...prev,
+      {
+        boxtype: '',
+        boxquantity: '',
+        sweetweight: '',
+        sweet: [{ sweetname: '', sweetgram: '', sweetquantity: '1' }],
+        cuboxtype: '',
+        cusweetweight: '',
+      },
+    ]);
+  };
+
+  const handleSubFormChange = (index, updatedSubFormData) => {
+    setSubForms((prevSubForms) =>
+      prevSubForms.map((subForm, i) => (i === index ? updatedSubFormData : subForm))
+    );
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      setIsLoading(true);
+
+      const formattedSubForms = subForms.map((subForm) => ({
+        boxtype: subForm.boxtype === 'customEntry' ? subForm.cuboxtype : subForm.boxtype,
+        boxquantity: subForm.boxquantity,
+        sweetweight: subForm.sweetweight === 'customWeight' ? subForm.cusweetweight : subForm.sweetweight,
+        sweet: subForm.sweet,
+      }));
+
       const response = await axios.post(
         'https://668bd3e40b61b8d23b0b5aef.mockapi.io/sweet/sweet',
         {
-          cname: formData.cname,
-          phone: formData.phone,
-          ddate: formData.ddate,
-          odate: formData.odate,
-          dtime: formData.dtime,
-          boxtype: formData.boxtype === 'customEntry' ? formData.cuboxtype : formData.boxtype,
-          boxquantity: formData.boxquantity,
-          sweetweight: formData.sweetweight === 'customWeight' ? formData.cusweetweight : formData.sweetweight,
-          sweet: formData.sweet,
-          isCustomEntry: formData.isCustomEntry,
+          ...formData,
+          subForms: formattedSubForms,
         },
         {
           headers: {
@@ -112,8 +130,8 @@ const AddForm = () => {
           },
         }
       );
+
       console.log('Response:', response.data);
-      // Clear form data after successful submission
       setFormData({
         cname: '',
         phone: '',
@@ -128,13 +146,14 @@ const AddForm = () => {
         cusweetweight: '',
         isCustomEntry: false,
       });
-      // Notify user of successful data addition
+      setSubForms([]);
       toast.success('Data added successfully!');
-      // Navigate to customer details page after successful submission
-      navigate('/customerdetails');
+      setTimeout(() => {
+        navigate('/customerdetails');
+      }, 2000);
     } catch (error) {
+      setIsLoading(false);
       console.error('Error adding data:', error);
-      // Notify user of error while adding data
       toast.error('Error adding data!');
     }
   };
@@ -222,115 +241,130 @@ const AddForm = () => {
               label="Sweet Weight"
               required
             >
-              <MenuItem value="1kg">1kg</MenuItem>
-              <MenuItem value="500gm">500gm</MenuItem>
-              <MenuItem value="250gm">250gm</MenuItem>
-              <MenuItem value="customWeight">Custom Weight</MenuItem>
+              {data.map((menu, index) => (
+                <MenuItem key={index} value={menu.sweetweight}>
+                  {menu.sweetweight}
+                </MenuItem>
+              ))}
+              <MenuItem value="customWeight">Custom Entry</MenuItem>
             </Select>
-            {formData.sweetweight === 'customWeight' && (
-              <TextField
-                fullWidth
-                id="cusweetweight"
-                name="cusweetweight"
-                value={formData.cusweetweight}
-                onChange={handleChange}
-                label="Custom Sweet Weight"
-                required
-              />
-            )}
           </FormControl>
+          {formData.sweetweight === 'customWeight' && (
+            <TextField
+              fullWidth
+              type="text"
+              name="cusweetweight"
+              value={formData.cusweetweight}
+              onChange={handleChange}
+              label="Custom Sweet Weight"
+              required
+            />
+          )}
         </Grid>
         <Grid item xs={12} sm={6}>
           <FormControl fullWidth>
-            <InputLabel id="boxtype-label">Menu Type</InputLabel>
+            <InputLabel id="boxtype-label">Box Type</InputLabel>
             <Select
               labelId="boxtype-label"
               id="boxtype"
               name="boxtype"
               value={formData.boxtype}
               onChange={handleChange}
-              label="Menu Type"
+              label="Box Type"
               required
             >
-              <MenuItem value="">Select Menu Type</MenuItem>
-              <MenuItem value="Marvelous Menu">Marvelous Menu</MenuItem>
-              <MenuItem value="VIP Menu">VIP Menu</MenuItem>
-              <MenuItem value="Luxury Menu">Luxury Menu</MenuItem>
-              <MenuItem value="Dry Fruit Delight">Dry Fruit Delight</MenuItem>
+              {data
+                .filter((menu) => menu.sweetweight === formData.sweetweight)
+                .map((menu, index) => (
+                  <MenuItem key={index} value={menu.boxtype}>
+                    {menu.boxtype}
+                  </MenuItem>
+                ))}
               <MenuItem value="customEntry">Custom Entry</MenuItem>
             </Select>
-            {formData.boxtype === 'customEntry' && (
-              <TextField
-                fullWidth
-                id="cuboxtype"
-                name="cuboxtype"
-                value={formData.cuboxtype}
-                onChange={handleChange}
-                label="Custom Menu Type"
-                required
-              />
-            )}
           </FormControl>
+          {formData.boxtype === 'customEntry' && (
+            <TextField
+              fullWidth
+              type="text"
+              name="cuboxtype"
+              value={formData.cuboxtype}
+              onChange={handleChange}
+              label="Custom Box Type"
+              required
+            />
+          )}
         </Grid>
-        {formData.sweet.map((sweet, index) => (
-          <React.Fragment key={index}>
-            <Grid item xs={12} sm={4}>
-              <TextField
-                fullWidth
-                type="text"
-                name={`sweetname-${index}`}
-                value={sweet.sweetname}
-                onChange={(e) => handleSweetChange(index, 'sweetname', e.target.value)}
-                label={`Sweet Name ${index + 1}`}
-                required
-              />
-            </Grid>
-            <Grid item xs={12} sm={4}>
-              <TextField
-                fullWidth
-                type="text"
-                name={`sweetgram-${index}`}
-                value={sweet.sweetgram}
-                onChange={(e) => handleSweetChange(index, 'sweetgram', e.target.value)}
-                label={`Sweet Gram ${index + 1}`}
-                required
-              />
-            </Grid>
-            <Grid item xs={12} sm={3}>
-              <TextField
-                fullWidth
-                type="number"
-                name={`sweetquantity-${index}`}
-                value={sweet.sweetquantity}
-                onChange={(e) => handleSweetChange(index, 'sweetquantity', e.target.value)}
-                label={`Sweet Quantity ${index + 1}`}
-                required
-              />
-            </Grid>
-            <Grid item xs={12} sm={1}>
-              <IconButton
-                aria-label="remove"
-                color="secondary"
-                onClick={() => handleRemoveSweetField(index)}
-              >
-                <RemoveCircleOutline />
-              </IconButton>
-            </Grid>
-          </React.Fragment>
-        ))}
+
         <Grid item xs={12}>
-          <Button
-            variant="contained"
-            color="primary"
-            startIcon={<AddCircleOutline />}
-            onClick={handleAddSweetField}
-          >
-            Add Sweet
+          <h3>Main Menu</h3>
+          {formData.sweet.map((sweet, index) => (
+            <Grid container spacing={2} key={index}>
+              <Grid item xs={12} sm={4}>
+                <TextField
+                  fullWidth
+                  type="text"
+                  name="sweetname"
+                  value={sweet.sweetname}
+                  onChange={(e) => handleSweetChangeMain(index, 'sweetname', e.target.value)}
+                  label="Sweet Name"
+                  required
+                />
+              </Grid>
+              <Grid item xs={12} sm={4}>
+                <TextField
+                  fullWidth
+                  type="number"
+                  name="sweetgram"
+                  value={sweet.sweetgram}
+                  onChange={(e) => handleSweetChangeMain(index, 'sweetgram', e.target.value)}
+                  label="Sweet Gram"
+                  required
+                />
+              </Grid>
+              <Grid item xs={12} sm={3}>
+                <TextField
+                  fullWidth
+                  type="number"
+                  name="sweetquantity"
+                  value={sweet.sweetquantity}
+                  onChange={(e) => handleSweetChangeMain(index, 'sweetquantity', e.target.value)}
+                  label="Sweet Quantity"
+                  required
+                />
+              </Grid>
+              <Grid item xs={12} sm={1}>
+                <IconButton onClick={() => handleRemoveSweetFieldMain(index)}>
+                  <RemoveCircleOutline />
+                </IconButton>
+              </Grid>
+            </Grid>
+          ))}
+          <Grid item xs={12}>
+            <IconButton onClick={handleAddSweetFieldMain}>
+  
+              <AddCircleOutline />
+              </IconButton>
+          </Grid>
+        </Grid>
+
+        <Grid item xs={12}>
+          <h3>Sub Menus</h3>
+          {subForms.map((subForm, index) => (
+            <SubMenu
+              key={index}
+              subFormData={subForm}
+              handleSubFormChange={(updatedSubFormData) => handleSubFormChange(index, updatedSubFormData)}
+            />
+          ))}
+          <Button variant="contained" color="primary" onClick={handleAddSubForm}>
+            Add SubMenu
           </Button>
         </Grid>
+
         <Grid item xs={12}>
-          <Button variant="contained" color="primary" type="submit">
-            Submit
+          <Button type="submit" variant="contained" color="primary" disabled={isLoading}>
+            {isLoading ? <CircularProgress size={24} /> : 'Submit'}
           </Button>
         </Grid>
       </Grid>
