@@ -13,9 +13,7 @@ import { AddCircleOutline, RemoveCircleOutline } from '@mui/icons-material';
 import data from '../../data';
 
 const SubMenu = ({ subFormData, handleSubFormChange }) => {
-  const [selectedMenu, setSelectedMenu] = useState(null);
   const [userEdited, setUserEdited] = useState(false); // Track if user has edited the sweet fields
-  const sweetData = subFormData.sweet || [];  // Ensure `sweet` is always an array
 
   useEffect(() => {
     const menu = data.find(
@@ -23,7 +21,6 @@ const SubMenu = ({ subFormData, handleSubFormChange }) => {
         m.sweetweight === subFormData.sweetweight &&
         m.boxtype === subFormData.boxtype
     );
-    setSelectedMenu(menu);
     if (menu && subFormData.boxtype !== 'customEntry' && !userEdited) {
       handleSubFormChange({
         ...subFormData,
@@ -34,7 +31,7 @@ const SubMenu = ({ subFormData, handleSubFormChange }) => {
         })),
       });
     }
-  }, [subFormData.sweetweight, subFormData.boxtype, userEdited, handleSubFormChange]);
+  }, [subFormData, userEdited, handleSubFormChange]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -148,7 +145,7 @@ const SubMenu = ({ subFormData, handleSubFormChange }) => {
       </Grid>
 
       <Grid item xs={12}>
-        {sweetData.map((sweet, index) => (
+        {subFormData.sweet.map((sweet, index) => (
           <Grid container spacing={2} key={index}>
             <Grid item xs={12} sm={4}>
               <TextField
