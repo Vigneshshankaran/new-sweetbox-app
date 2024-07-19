@@ -108,6 +108,7 @@ const data =  [
     },
     {
       "boxtype": "Luxury Menu",
+      "sweetweight": "1kg",
       "sweets": [
         { "sweetname": "Anjeer King", "sweetgram": 60, "sweetquantity": 1 },
         { "sweetname": "Khaji Strawberry", "sweetgram": 80, "sweetquantity": 1 },
@@ -125,8 +126,39 @@ const data =  [
         { "sweetname": "Rose Dryfruit Burpee", "sweetgram": 80, "sweetquantity": 1 }
       ]
     },
+    {  
+      "boxtype": "Luxury Menu",
+      "sweetweight": "250g",
+      "sweets": [
+        { "sweetname": "Anjeer King", "sweetgram": 30, "sweetquantity": 1 },
+        { "sweetname": "Ghazi Katli", "sweetgram": 40, "sweetquantity": 1 },
+        { "sweetname": "Pistachio Latte", "sweetgram": 40, "sweetquantity": 1 },
+        { "sweetname": "Kajee Rangeela Roll", "sweetgram": 20, "sweetquantity": 1 },
+        { "sweetname": "Chota burpee", "sweetgram": 40, "sweetquantity": 1 },
+        { "sweetname": "Chaco Chip Zone", "sweetgram": 40, "sweetquantity": 1 },
+        { "sweetname": "Cashew Alva", "sweetgram": 50, "sweetquantity": 1 },
+      ]
+    },
+    {  
+      "boxtype": "Luxury Menu",
+      "sweetweight": "500g",
+      "sweets": [
+        { "sweetname": "Anjeer King", "sweetgram": 30, "sweetquantity": 1 },
+        { "sweetname": "Ghazi Katli", "sweetgram": 40, "sweetquantity": 1 },
+        { "sweetname": "Mawa Bite", "sweetgram": 40, "sweetquantity": 1 },
+        { "sweetname": "Kajee Rangeela Roll", "sweetgram": 40, "sweetquantity": 1 },
+        { "sweetname": "Cashew Mysore", "sweetgram": 50, "sweetquantity": 1 },
+        { "sweetname": "Ghee laddus", "sweetgram": 40, "sweetquantity": 1 },
+        { "sweetname": "Chota burpee", "sweetgram": 40, "sweetquantity": 1 },
+        { "sweetname": "Chaco Chip Zone", "sweetgram": 40, "sweetquantity": 1 },
+        { "sweetname": "Mango Bite", "sweetgram": 40, "sweetquantity": 1 },
+        { "sweetname": "Almond Burpee", "sweetgram": 35, "sweetquantity": 1 },
+        { "sweetname": "Cashew Alva", "sweetgram": 50, "sweetquantity": 1 },
+      ]
+    },
     {
       "boxtype": "Dry Fruit Delight",
+      "sweetweight": "1kg",
       "sweets": [
         { "sweetname": "Horlicks Mysore", "sweetgram": 100, "sweetquantity": 1 },
         { "sweetname": "Mathura laddu", "sweetgram": 80, "sweetquantity": 1 },
@@ -142,7 +174,39 @@ const data =  [
         { "sweetname": "Pomelo Latte", "sweetgram": 100, "sweetquantity": 1 },
         { "sweetname": "Cocoa Burpee", "sweetgram": 80, "sweetquantity": 1 }
       ]
-    }
+    },
+    {
+      "boxtype": "Dry Fruit Delight",
+      "sweetweight": "500g",
+      "sweets": [
+        { "sweetname": "Horlicks Mysore", "sweetgram": 50, "sweetquantity": 1 },
+        { "sweetname": "Mathura laddu", "sweetgram": 40, "sweetquantity": 1 },
+        { "sweetname": "Dry Fruit Bite", "sweetgram": 40, "sweetquantity": 1 },
+        { "sweetname": "Dry Fruit Alva", "sweetgram": 50, "sweetquantity": 1 },
+        { "sweetname": "Kasur Biscuits", "sweetgram": 30, "sweetquantity": 1 },
+        { "sweetname": "Besal Almond Alva", "sweetgram": 20, "sweetquantity": 1 },
+        { "sweetname": "The cognate bite", "sweetgram": 40, "sweetquantity": 1 },
+        { "sweetname": "Rose Dryfruit Burpee", "sweetgram": 30, "sweetquantity": 1 },
+        { "sweetname": "American Chuck Burberry", "sweetgram": 35, "sweetquantity": 1 },
+        { "sweetname": "Mango Bite", "sweetgram": 40, "sweetquantity": 1 },
+        { "sweetname": "Dry Fruit Weber", "sweetgram": 40, "sweetquantity": 1 },
+        { "sweetname": "Pomelo Latte", "sweetgram": 50, "sweetquantity": 1 },
+        { "sweetname": "Cocoa Burpee", "sweetgram": 40, "sweetquantity": 1 }
+      ]
+    },
+    {
+    "boxtype": "Dry Fruit Delight",
+    "sweetweight": "250g",
+    "sweets": [
+      { "sweetname": "Dry Fruit Alva", "sweetgram": 50, "sweetquantity": 1 },
+      { "sweetname": "Kasur Biscuits", "sweetgram": 30, "sweetquantity": 1 },
+      { "sweetname": "The cognate bite", "sweetgram": 40, "sweetquantity": 1 },
+      { "sweetname": "Rose Dryfruit Burpee", "sweetgram": 30, "sweetquantity": 1 },
+      { "sweetname": "American Chuck Burberry", "sweetgram": 35, "sweetquantity": 1 },
+      { "sweetname": "Mango Bite", "sweetgram": 40, "sweetquantity": 1 },
+      { "sweetname": "Dry Fruit Weber", "sweetgram": 40, "sweetquantity": 1 },
+    ]
+  }
   ]
 
 
