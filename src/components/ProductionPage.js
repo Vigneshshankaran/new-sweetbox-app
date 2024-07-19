@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Typography, Table, TableHead, TableBody, TableRow, TableCell } from '@mui/material';
+import { Typography, Table, TableHead, TableBody, TableRow, TableCell, Button, Box } from '@mui/material';
+import { Print as PrintIcon, Description as DescriptionIcon } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
+import { exportTableToExcel } from '../exportTableToExcel'; // Adjust path as per your actual structure
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   '&.MuiTableCell-head': {
@@ -11,6 +13,14 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
     fontSize: 14,
   },
 }));
+
+const handlePrint = () => {
+  window.print();
+};
+
+const handleExport = () => {
+  exportTableToExcel('orders-table', 'Orders');
+};
 
 const useCustomerData = () => {
   const [customerData, setCustomerData] = useState([]);
@@ -107,28 +117,51 @@ const ProductionPage = () => {
       <Typography variant="h4" gutterBottom>
         Production Details
       </Typography>
-      <Table sx={{ width: '100%', border: '1px solid #e0e0e0', borderCollapse: 'collapse' }}>
-        <TableHead>
-          <TableRow>
-            <StyledTableCell>Delivery Date</StyledTableCell>
-            <StyledTableCell>Sweet Name</StyledTableCell>
-            <StyledTableCell>Total Kilograms</StyledTableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {productionData.map((item, index) => (
-            <TableRow key={index}>
-              {index === 0 || productionData[index - 1].deliveryDate !== item.deliveryDate ? (
-                <TableCell rowSpan={productionData.filter(data => data.deliveryDate === item.deliveryDate).length}>
-                  {item.deliveryDate}
-                </TableCell>
-              ) : null}
-              <TableCell>{item.sweetName}</TableCell>
-              <TableCell>{item.totalKg.toFixed(2)} kg</TableCell>
+
+      <Box sx={{ marginBottom: 2 }}>
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<PrintIcon />}
+            onClick={handlePrint}
+            sx={{ marginRight: 2 }}
+          >
+            Print
+          </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<DescriptionIcon />}
+            onClick={handleExport}
+          >
+            Export to Excel
+          </Button>
+        </Box>
+      <div className="printableArea">
+        <Table id="orders-table" sx={{ width: '100%', border: '1px solid #e0e0e0', borderCollapse: 'collapse' }}>
+          <TableHead>
+            <TableRow>
+              <StyledTableCell>Delivery Date</StyledTableCell>
+              <StyledTableCell>Sweet Name</StyledTableCell>
+              <StyledTableCell>Total Kilograms</StyledTableCell>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHead>
+          <TableBody>
+            {productionData.map((item, index) => (
+              <TableRow key={index}>
+                {index === 0 || productionData[index - 1].deliveryDate !== item.deliveryDate ? (
+                  <TableCell rowSpan={productionData.filter(data => data.deliveryDate === item.deliveryDate).length}>
+                    {item.deliveryDate}
+                  </TableCell>
+                ) : null}
+                <TableCell>{item.sweetName}</TableCell>
+                <TableCell>{item.totalKg.toFixed(2)} kg</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+    
+      </div>
     </div>
   );
 };
