@@ -128,7 +128,7 @@ const data =  [
     },
     {  
       "boxtype": "Luxury Menu",
-      "sweetweight": "250g",
+      "sweetweight": "250gm",
       "sweets": [
         { "sweetname": "Anjeer King", "sweetgram": 30, "sweetquantity": 1 },
         { "sweetname": "Ghazi Katli", "sweetgram": 40, "sweetquantity": 1 },
@@ -141,7 +141,7 @@ const data =  [
     },
     {  
       "boxtype": "Luxury Menu",
-      "sweetweight": "500g",
+      "sweetweight": "500gm",
       "sweets": [
         { "sweetname": "Anjeer King", "sweetgram": 30, "sweetquantity": 1 },
         { "sweetname": "Ghazi Katli", "sweetgram": 40, "sweetquantity": 1 },
@@ -177,7 +177,7 @@ const data =  [
     },
     {
       "boxtype": "Dry Fruit Delight",
-      "sweetweight": "500g",
+      "sweetweight": "500gm",
       "sweets": [
         { "sweetname": "Horlicks Mysore", "sweetgram": 50, "sweetquantity": 1 },
         { "sweetname": "Mathura laddu", "sweetgram": 40, "sweetquantity": 1 },
@@ -196,7 +196,7 @@ const data =  [
     },
     {
     "boxtype": "Dry Fruit Delight",
-    "sweetweight": "250g",
+    "sweetweight": "250gm",
     "sweets": [
       { "sweetname": "Dry Fruit Alva", "sweetgram": 50, "sweetquantity": 1 },
       { "sweetname": "Kasur Biscuits", "sweetgram": 30, "sweetquantity": 1 },
