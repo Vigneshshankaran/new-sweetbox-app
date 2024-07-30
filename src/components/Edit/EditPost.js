@@ -56,7 +56,7 @@ const EditPost = () => {
     const fetchOrderData = async () => {
       try {
         setIsLoading(true);
-        const response = await axios.get(`http://localhost:5000/api/mainsweet/${id}`);
+        const response = await axios.get(`https://sweets-admin-server-hh64.vercel.app/api/mainsweet/${id}`);
         const orderData = response.data;
         setFormData({
           ...orderData,
