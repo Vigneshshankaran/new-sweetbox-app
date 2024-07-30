@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Avatar, Button, TextField, FormControlLabel, Checkbox, Box, Typography, Container, CircularProgress } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../AuthContext'; // Adjust the import path as needed
 

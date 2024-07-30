@@ -7,7 +7,6 @@ import {
   Select,
   MenuItem,
   IconButton,
-  Button,
 } from '@mui/material';
 import { AddCircleOutline, RemoveCircleOutline } from '@mui/icons-material';
 import data from '../../data';
@@ -23,7 +22,9 @@ const SubMenu = ({ subFormData, handleSubFormChange, getUniqueSweetWeights }) =>
         sweet: menu.sweets.map(sweet => ({ ...sweet, sweetquantity: 1 }))
       });
     }
-  }, [subFormData.sweetweight, subFormData.boxtype, userEdited, handleSubFormChange]);
+  }, [subFormData, userEdited, handleSubFormChange]); // Included subFormData in the dependency array
+  
+  
 
   const handleChange = (e) => {
     const { name, value } = e.target;
