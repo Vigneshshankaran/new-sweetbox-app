@@ -12,38 +12,30 @@ import {
 import { AddCircleOutline, RemoveCircleOutline } from '@mui/icons-material';
 import data from '../../data';
 
-const SubMenu = ({ subFormData, handleSubFormChange }) => {
-  const [userEdited, setUserEdited] = useState(false); // Track if user has edited the sweet fields
+const SubMenu = ({ subFormData, handleSubFormChange, getUniqueSweetWeights }) => {
+  const [userEdited, setUserEdited] = useState(false);
 
   useEffect(() => {
-    const menu = data.find(
-      (m) =>
-        m.sweetweight === subFormData.sweetweight &&
-        m.boxtype === subFormData.boxtype
-    );
+    const menu = data.find(m => m.sweetweight === subFormData.sweetweight && m.boxtype === subFormData.boxtype);
     if (menu && subFormData.boxtype !== 'customEntry' && !userEdited) {
       handleSubFormChange({
         ...subFormData,
-        sweet: menu.sweets.map((sweet) => ({
-          sweetname: sweet.sweetname,
-          sweetgram: sweet.sweetgram,
-          sweetquantity: 1,
-        })),
+        sweet: menu.sweets.map(sweet => ({ ...sweet, sweetquantity: 1 }))
       });
     }
-  }, [subFormData, userEdited, handleSubFormChange]);
+  }, [subFormData.sweetweight, subFormData.boxtype, userEdited, handleSubFormChange]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     handleSubFormChange({ ...subFormData, [name]: value });
-    setUserEdited(false); // Reset userEdited flag when main form fields change
+    setUserEdited(false);
   };
 
   const handleSweetChange = (index, field, value) => {
     const newSweets = [...subFormData.sweet];
     newSweets[index][field] = value;
     handleSubFormChange({ ...subFormData, sweet: newSweets });
-    setUserEdited(true); // Set userEdited flag when sweet fields are changed
+    setUserEdited(true);
   };
 
   const handleAddSweetField = () => {
@@ -54,14 +46,14 @@ const SubMenu = ({ subFormData, handleSubFormChange }) => {
         { sweetname: '', sweetgram: '', sweetquantity: '1' },
       ],
     });
-    setUserEdited(true); // Set userEdited flag when a new sweet field is added
+    setUserEdited(true);
   };
 
   const handleRemoveSweetField = (index) => {
     const newSweets = [...subFormData.sweet];
     newSweets.splice(index, 1);
     handleSubFormChange({ ...subFormData, sweet: newSweets });
-    setUserEdited(true); // Set userEdited flag when a sweet field is removed
+    setUserEdited(true);
   };
 
   return (
@@ -89,9 +81,9 @@ const SubMenu = ({ subFormData, handleSubFormChange }) => {
             label="Sweet Weight"
             required
           >
-            {data.map((menu, index) => (
-              <MenuItem key={index} value={menu.sweetweight}>
-                {menu.sweetweight}
+            {getUniqueSweetWeights().map((weight, index) => (
+              <MenuItem key={index} value={weight}>
+                {weight}
               </MenuItem>
             ))}
             <MenuItem value="customWeight">Custom Entry</MenuItem>
@@ -146,13 +138,13 @@ const SubMenu = ({ subFormData, handleSubFormChange }) => {
 
       <Grid item xs={12}>
         {subFormData.sweet.map((sweet, index) => (
-          <Grid container spacing={2} key={index}>
+          <Grid container spacing={2} key={index}> {/* Align items to center */}
             <Grid item xs={12} sm={4}>
               <TextField
                 fullWidth
                 type="text"
                 name="sweetname"
-                value={sweet.sweetname}
+                value={sweet.sweetname || ''} // Add default value here
                 onChange={(e) =>
                   handleSweetChange(index, 'sweetname', e.target.value)
                 }
@@ -165,7 +157,7 @@ const SubMenu = ({ subFormData, handleSubFormChange }) => {
                 fullWidth
                 type="number"
                 name="sweetgram"
-                value={sweet.sweetgram}
+                value={sweet.sweetgram || 0} // Add default value here
                 onChange={(e) =>
                   handleSweetChange(index, 'sweetgram', e.target.value)
                 }
@@ -178,7 +170,7 @@ const SubMenu = ({ subFormData, handleSubFormChange }) => {
                 fullWidth
                 type="number"
                 name="sweetquantity"
-                value={sweet.sweetquantity}
+                value={sweet.sweetquantity || 1} // Add default value here
                 onChange={(e) =>
                   handleSweetChange(index, 'sweetquantity', e.target.value)
                 }
@@ -190,18 +182,18 @@ const SubMenu = ({ subFormData, handleSubFormChange }) => {
               <IconButton onClick={() => handleRemoveSweetField(index)}>
                 <RemoveCircleOutline />
               </IconButton>
+              
             </Grid>
+     
           </Grid>
         ))}
-        <Grid item xs={12}>
-          <Button
-            variant="outlined"
-            color="primary"
-            onClick={handleAddSweetField}
-            startIcon={<AddCircleOutline />}
-          >
-            Add Sweet
-          </Button>
+        <Grid item xs={12}> {/* Align button to the right */}
+      
+          <IconButton
+            onClick={handleAddSweetField}>
+            <AddCircleOutline />
+              </IconButton>
+          
         </Grid>
       </Grid>
     </Grid>

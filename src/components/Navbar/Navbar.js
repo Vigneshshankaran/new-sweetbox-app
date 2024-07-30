@@ -1,20 +1,27 @@
 import React from 'react';
-import { AppBar, Toolbar, Typography, IconButton, Menu, MenuItem, Box } from '@mui/material';
-import { Menu as MenuIcon } from '@mui/icons-material';
+import { AppBar, Toolbar, Typography, IconButton, Drawer, List, ListItem, ListItemButton, ListItemText, Divider } from '@mui/material';
+import MenuIcon from '@mui/icons-material/Menu';
 import { NavLink } from 'react-router-dom';
-import { useTheme } from '@mui/material/styles';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 
 const Navbar = () => {
-  const theme = useTheme();
-  const isMobile = theme.breakpoints.down('sm');
-  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [drawerOpen, setDrawerOpen] = React.useState(false);
 
-  const handleMenuOpen = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
+  const navLinks = [
+    { label: 'Production', to: '/production' },
+    { label: 'Dashboard', to: '/dashboard' }, 
+    { label: 'Add Form', to: '/' }, 
+    { label: 'SweetBoxs', to: '/sweetbox' }, 
+    { label: 'Customer Details', to: '/customerdetails' },
+    { label: 'Manufacture Details', to: '/manufacturedetails' },
+    { label: 'Login', to: '/login' },
+  ];
 
-  const handleMenuClose = () => {
-    setAnchorEl(null);
+  const toggleDrawer = (open) => (event) => {
+    if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
+      return;
+    }
+    setDrawerOpen(open);
   };
 
   return (
@@ -23,104 +30,35 @@ const Navbar = () => {
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
           SweetBox Admin Panel
         </Typography>
-        {isMobile ? (
-          <>
-            <IconButton
-              edge="start"
-              color="inherit"
-              aria-label="menu"
-              aria-controls="menu-appbar"
-              aria-haspopup="true"
-              onClick={handleMenuOpen}
-            >
-              <MenuIcon />
-            </IconButton>
-            <Menu
-              id="menu-appbar"
-              anchorEl={anchorEl}
-              anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-              transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-              open={Boolean(anchorEl)}
-              onClose={handleMenuClose}
-            >
-               <MenuItem onClick={handleMenuClose} component={NavLink} to="/production" exact="true">
-               Production
-              </MenuItem> 
-              <MenuItem onClick={handleMenuClose} component={NavLink} to="/">
-                AddForm
-              </MenuItem>
-              <MenuItem onClick={handleMenuClose} component={NavLink} to="/customerdetails">
-                Customer Details
-              </MenuItem>
-              <MenuItem onClick={handleMenuClose} component={NavLink} to="/manufacturedetails">
-                Manufacture Details
-              </MenuItem>
-              <MenuItem onClick={handleMenuClose} component={NavLink} to="/login">
-                Login
-              </MenuItem>
-            </Menu>
-          </>
-        ) : (
-          <Box sx={{ display: 'flex', flexGrow: 1, justifyContent: 'space-evenly' }}>
-            <NavLink
-              to="/"
-              style={({ isActive }) => ({
-                color: 'white',
-                textDecoration: 'none',
-                fontWeight: isActive ? 'bold' : 'normal',
-              })}
-              isActive={(match, location) => {
-                if (!match) {
-                  return false;
-                }
-                return match.isExact;
-              }}
-              exact="true"
-            >
-              Dashboard
-            </NavLink>
-            <NavLink
-              to="/add"
-              style={({ isActive }) => ({
-                color: 'white',
-                textDecoration: 'none',
-                fontWeight: isActive ? 'bold' : 'normal',
-              })}
-            >
-              AddForm
-            </NavLink>
-            <NavLink
-              to="/customerdetails"
-              style={({ isActive }) => ({
-                color: 'white',
-                textDecoration: 'none',
-                fontWeight: isActive ? 'bold' : 'normal',
-              })}
-            >
-              Customer Details
-            </NavLink>
-            <NavLink
-              to="/manufacturedetails"
-              style={({ isActive }) => ({
-                color: 'white',
-                textDecoration: 'none',
-                fontWeight: isActive ? 'bold' : 'normal',
-              })}
-            >
-              Manufacture Details
-            </NavLink>
-            <NavLink
-              to="/login"
-              style={({ isActive }) => ({
-                color: 'white',
-                textDecoration: 'none',
-                fontWeight: isActive ? 'bold' : 'normal',
-              })}
-            >
-              Login
-            </NavLink>
-          </Box>
-        )}
+
+        <IconButton edge="start" color="inherit" aria-label="menu" onClick={toggleDrawer(true)}>
+          <MenuIcon />
+        </IconButton>
+
+        <Drawer anchor="right" open={drawerOpen} onClose={toggleDrawer(false)}>
+          <div
+            role="presentation"
+            onClick={toggleDrawer(false)}
+            onKeyDown={toggleDrawer(false)}
+          >
+            <List>
+              <ListItemButton onClick={toggleDrawer(false)}>
+                <IconButton>
+                  <ChevronLeftIcon />
+                </IconButton>
+              </ListItemButton>
+              <Divider />
+
+              {navLinks.map((link) => (
+                <ListItem key={link.to} disablePadding component={NavLink} to={link.to} exact={link.to === '/production' ? "true" : false}>
+                  <ListItemButton>
+                    <ListItemText primary={link.label} />
+                  </ListItemButton>
+                </ListItem>
+              ))}
+            </List>
+          </div>
+        </Drawer>
       </Toolbar>
     </AppBar>
   );

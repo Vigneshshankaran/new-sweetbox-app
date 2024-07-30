@@ -8,8 +8,9 @@ import ManufactureDetailsTable from './components/ManufactureDetailsTable/Manufa
 import NavBar from './components/Navbar/Navbar';
 import NotFound from './pages/NotFound/NotFound'; // Corrected path to NotFound component
 import ProductionPage from './components/ProductionPage';
-import EditPost from './components/EditPost';
-// import Footer from './components/Footer/Footer';
+import EditPost from './components/Edit/EditPost';
+import Dashboard from './components/Dashboard/Dashboard';
+import SweetBoxes from './SweetBoxs';
 
 function App() {
   const [totalKgByCustomer, setTotalKgByCustomer] = useState({});
@@ -35,6 +36,9 @@ function App() {
             /> {/* Ensure element prop is provided */}
             <Route path="/production" element={<ProductionPage />} /> {/* Corrected element prop */}
             <Route path="/editpost/:id" element={<EditPost />} />
+            <Route path="/sweetbox" element={<SweetBoxes />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+
 
             <Route path="/login" element={<Login />} /> {/* Ensure element prop is provided */}
             <Route path="*" element={<NotFound />} /> {/* Catch-all route for 404 Not Found page */}

@@ -14,6 +14,17 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
   },
 }));
 
+const StyledTableContainer = styled(Box)(({ theme }) => ({
+  overflowX: 'auto',
+  '& .MuiTableCell-root': {
+    border: '1px solid lightgray',
+    padding: theme.spacing(1),
+  },
+  '& .MuiTableHead-root .MuiTableCell-head': {
+    fontWeight: 'bold',
+  },
+}));
+
 const handlePrint = () => {
   window.print();
 };
@@ -31,7 +42,7 @@ const useCustomerData = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const response = await fetch('https://668bd3e40b61b8d23b0b5aef.mockapi.io/sweet/sweet');
+        const response = await fetch('https://sweets-admin-server-hh64.vercel.app/api/mainsweet/getmainsweet');
         const data = await response.json();
         setCustomerData(data);
       } catch (error) {
@@ -119,25 +130,25 @@ const ProductionPage = () => {
       </Typography>
 
       <Box sx={{ marginBottom: 2 }}>
-          <Button
-            variant="contained"
-            color="primary"
-            startIcon={<PrintIcon />}
-            onClick={handlePrint}
-            sx={{ marginRight: 2 }}
-          >
-            Print
-          </Button>
-          <Button
-            variant="contained"
-            color="primary"
-            startIcon={<DescriptionIcon />}
-            onClick={handleExport}
-          >
-            Export to Excel
-          </Button>
-        </Box>
-      <div className="printableArea">
+        <Button
+          variant="contained"
+          color="primary"
+          startIcon={<PrintIcon />}
+          onClick={handlePrint}
+          sx={{ marginRight: 2 }}
+        >
+          Print
+        </Button>
+        <Button
+          variant="contained"
+          color="primary"
+          startIcon={<DescriptionIcon />}
+          onClick={handleExport}
+        >
+          Export to Excel
+        </Button>
+      </Box>
+      <StyledTableContainer>
         <Table id="orders-table" sx={{ width: '100%', border: '1px solid #e0e0e0', borderCollapse: 'collapse' }}>
           <TableHead>
             <TableRow>
@@ -150,7 +161,7 @@ const ProductionPage = () => {
             {productionData.map((item, index) => (
               <TableRow key={index}>
                 {index === 0 || productionData[index - 1].deliveryDate !== item.deliveryDate ? (
-                  <TableCell rowSpan={productionData.filter(data => data.deliveryDate === item.deliveryDate).length}>
+                  <TableCell rowSpan={productionData.filter((data) => data.deliveryDate === item.deliveryDate).length}>
                     {item.deliveryDate}
                   </TableCell>
                 ) : null}
@@ -160,8 +171,7 @@ const ProductionPage = () => {
             ))}
           </TableBody>
         </Table>
-    
-      </div>
+      </StyledTableContainer>
     </div>
   );
 };

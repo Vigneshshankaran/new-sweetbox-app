@@ -1,3 +1,4 @@
+// Import the necessary hooks and components
 import React, { useState, useEffect } from 'react';
 import {
   Box,
@@ -14,19 +15,15 @@ import {
   MenuItem,
 } from '@mui/material';
 import {
-  Delete as DeleteIcon,
   Print as PrintIcon,
   Description as DescriptionIcon,
-  Edit as EditIcon,
   FilterList as FilterListIcon,
-
 } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import useCustomerData from '../../useCustomerData'; // Adjust path as per your actual structure
-import { exportTableToExcel } from '../../exportTableToExcel'; // Adjust path as per your actual structure
+import useCustomerData from '../../useCustomerData'; 
+import { exportTableToExcel } from '../../exportTableToExcel';
+import CustomerRow from './CustomerRow';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   '&.MuiTableCell-head': {
@@ -38,21 +35,35 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
   },
 }));
 
-const EmptyCell = () => <TableCell />;
+const StyledTableContainer = styled(Box)(({ theme }) => ({
+  overflowX: 'auto',
+  '& .MuiTableRow-root:nth-of-type(odd)': {
+    backgroundColor: theme.palette.action.hover,
+  },
+  '& .MuiTableRow-root:hover': {
+    backgroundColor: theme.palette.action.selected,
+  },
+  '& .MuiTableCell-root': {
+    border: '1px solid lightgray',
+    padding: theme.spacing(1),
+  },
+  '& .MuiTableHead-root .MuiTableCell-head': {
+    fontWeight: 'bold',
+  },
+}));
 
 const CustomerDetailsTable = () => {
-  const { customerData, loading, error, deleteCustomer } = useCustomerData(); // Assuming useCustomerData hook correctly fetches customer data
+  const { customerData, loading, error, deleteCustomer, updateCustomerStatus } = useCustomerData();  // Destructure updateCustomerStatus here
   const [search, setSearch] = useState('');
   const [expandedRows, setExpandedRows] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
-  const [sweetFilter, setSweetFilter] = useState('All'); // Default to 'All'
+  const [sweetFilter, setSweetFilter] = useState('All');
 
   useEffect(() => {
-    // When sweetFilter changes, reset expandedRows accordingly
     if (sweetFilter === 'All') {
-      setExpandedRows(customerData.map(customer => customer.id));
+      setExpandedRows(customerData.map(customer => customer._id));
     } else {
-      setExpandedRows([]); // Collapse all rows when filter is not 'All'
+      setExpandedRows([]);
     }
   }, [sweetFilter, customerData]);
 
@@ -86,45 +97,25 @@ const CustomerDetailsTable = () => {
   };
 
   const classifyCustomer = (customer) => {
-    // Check main form classification
     const isMainSweet = !customer.isCustomEntry && !customer.subForms.some(subForm => subForm.isCustomEntry);
-
-    // Check subform classification
     const isCustomSweet = customer.isCustomEntry || customer.subForms.some(subForm => subForm.isCustomEntry);
-
-    if (isMainSweet) {
-      return 'Main Sweets';
-    } else if (isCustomSweet) {
-      return 'Custom Sweets';
-    } else {
-      return 'Unknown';
-    }
+    return isMainSweet ? 'Main Sweets' : (isCustomSweet ? 'Custom Sweets' : 'Unknown');
   };
 
   const classifySubMenu = (subForm) => {
-    if (subForm.isCustomEntry) {
-      return 'Custom Sweets';
-    } else {
-      return 'Main Sweets';
-    }
+    return subForm.isCustomEntry ? 'Custom Sweets' : 'Main Sweets';
   };
 
-  const filteredData = customerData && customerData
+  const filteredData = (customerData || [])
     .map(customer => ({
       ...customer,
       subForms: customer.subForms || [],
     }))
-    .filter(customer => customer.cname.toLowerCase().includes(search.toLowerCase()))
+    .filter(customer => customer.cname && customer.cname.toLowerCase().includes(search.toLowerCase()))
     .sort((a, b) => new Date(a.ddate) - new Date(b.ddate))
     .filter(customer => {
-      if (sweetFilter === 'All') {
-        return true; // Show all customers
-      } else if (sweetFilter === 'Main Sweets') {
-        return classifyCustomer(customer) === 'Main Sweets';
-      } else if (sweetFilter === 'Custom Sweets') {
-        return classifyCustomer(customer) === 'Custom Sweets';
-      }
-      return false; // Default to not showing anything if filter is invalid
+      if (sweetFilter === 'All') return true;
+      return sweetFilter === 'Main Sweets' ? classifyCustomer(customer) === 'Main Sweets' : classifyCustomer(customer) === 'Custom Sweets';
     });
 
   const handleSearchChange = (event) => {
@@ -139,7 +130,7 @@ const CustomerDetailsTable = () => {
       <Typography variant="h4" gutterBottom>
         Customer Details
       </Typography>
-      <Box sx={{ width: '100%', maxWidth: 400, margin: 'auto',  }}>
+      <Box sx={{ width: '100%', maxWidth: 400, margin: 'auto' }}>
         <TextField
           label="Search by Name"
           variant="outlined"
@@ -148,7 +139,7 @@ const CustomerDetailsTable = () => {
           sx={{ width: '100%', margin: 2 }}
         />
       </Box>
-      <Box sx={{  marginBottom: 2 }}>
+      <Box sx={{ marginBottom: 2 }}>
         <Button
           variant="contained"
           color="primary"
@@ -180,7 +171,7 @@ const CustomerDetailsTable = () => {
           <MenuItem onClick={() => handleFilterClose('Custom Sweets')}>Custom Sweets</MenuItem>
         </Menu>
       </Box>
-      <div className='printableArea'>
+      <StyledTableContainer>
         <Table id='orders-table'>
           <TableHead>
             <TableRow>
@@ -195,105 +186,30 @@ const CustomerDetailsTable = () => {
               <StyledTableCell>Sweet Name</StyledTableCell>
               <StyledTableCell>Sweet Gram</StyledTableCell>
               <StyledTableCell>Sweet Quantity</StyledTableCell>
+              <StyledTableCell>Delivery Center</StyledTableCell>
+              <StyledTableCell>Manufacturing Unit</StyledTableCell>
               <StyledTableCell>Total Kilograms</StyledTableCell>
+              <StyledTableCell>Status</StyledTableCell>
+
               <StyledTableCell className='action-button'>Actions</StyledTableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {filteredData.map(customer => (
-              <React.Fragment key={customer.id}>
-                {/* Main Customer Row */}
-                <TableRow onClick={() => handleRowExpand(customer.id)}>
-                  <TableCell>{customer.cname}</TableCell>
-                  <TableCell>{customer.phone}</TableCell>
-                  <TableCell>{customer.odate}</TableCell>
-                  <TableCell>{customer.ddate}</TableCell>
-                  <TableCell>{customer.dtime}</TableCell>
-                  <TableCell>{customer.boxtype === 'customEntry' ? customer.cuboxtype : customer.boxtype}</TableCell>
-                  <TableCell>{customer.boxquantity}</TableCell>
-                  <TableCell>{customer.sweetweight === 'customWeight' ? customer.cusweetweight : customer.sweetweight}</TableCell>
-                  <TableCell colSpan={3}>{classifyCustomer(customer)}</TableCell>
-                  <TableCell>
-                    {customer.sweet.reduce((totalKg, item) => {
-                      return totalKg + (item.sweetgram * item.sweetquantity * customer.boxquantity) / 1000;
-                    }, 0).toFixed(2)} Kg
-                  </TableCell>
-                  <TableCell>
-                    <IconButton color="primary" component={Link} to={`/editpost/${customer.id}`}>
-                      <EditIcon />
-                    </IconButton>
-                    <IconButton color="error" onClick={() => handleDelete(customer.id)}>
-                      <DeleteIcon />
-                      <ToastContainer />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-
-                {/* Expanded Sweet Details */}
-                {expandedRows.includes(customer.id) && (
-                  <>
-                    {/* Main Sweets */}
-                    {customer.sweet.map((item, index) => (
-                      <TableRow key={`${customer.id}-sweet-${index}`}>
-                        <EmptyCell />
-                        <EmptyCell />
-                        <EmptyCell />
-                        <EmptyCell />
-                        <EmptyCell />
-                        <EmptyCell />
-                        <EmptyCell />
-                        <EmptyCell />
-
-                        <TableCell>{item.sweetname}</TableCell>
-                        <TableCell>{item.sweetgram}</TableCell>
-                        <TableCell>{item.sweetquantity}</TableCell>
-                        <EmptyCell />
-                      </TableRow>
-                    ))}
-
-                    {/* SubForms */}
-                    {customer.subForms.map((subForm, subIndex) => (
-                      <React.Fragment key={`${customer.id}-subform-${subIndex}`}>
-                        {/* SubForm Row */}
-                        <TableRow>
-                          <TableCell colSpan={5} />
-                        
-                         
-                          
-                          <TableCell>{subForm.boxtype === 'customEntry' ? subForm.cuboxtype : subForm.boxtype}</TableCell>
-                          <TableCell colSpan={1} />
-
-                          <TableCell>{subForm.sweetweight === 'customWeight' ? subForm.cusweetweight : subForm.sweetweight}</TableCell>
-                          <TableCell colSpan={4}>
-                           <b>Sub Menu</b>  {subIndex + 1} - {classifySubMenu(subForm)}
-                          </TableCell>
-                        </TableRow>
-                        {/* Sweet Items in SubForm */}
-                        {subForm.sweet.map((item, index) => (
-                          <TableRow key={`${customer.id}-subform-${subIndex}-sweet-${index}`}>
-                            <EmptyCell colSpan={3} />
-                            <EmptyCell />
-                        <EmptyCell />
-                        <EmptyCell />
-                        <EmptyCell />
-                        <EmptyCell />
-                        <EmptyCell />
-                        <EmptyCell />
-                            <TableCell>{item.sweetname}</TableCell>
-                            <TableCell>{item.sweetgram}</TableCell>
-                            <TableCell>{item.sweetquantity}</TableCell>
-                            <EmptyCell />
-                          </TableRow>
-                        ))}
-                      </React.Fragment>
-                    ))}
-                  </>
-                )}
-              </React.Fragment>
+              <CustomerRow
+                key={customer._id}
+                customer={customer}
+                expandedRows={expandedRows}
+                handleRowExpand={handleRowExpand}
+                handleDelete={handleDelete}
+                handleStatusChange={updateCustomerStatus}  // Pass the function here
+                classifyCustomer={classifyCustomer}
+                classifySubMenu={classifySubMenu}
+              />
             ))}
           </TableBody>
         </Table>
-      </div>
+      </StyledTableContainer>
     </>
   );
 };

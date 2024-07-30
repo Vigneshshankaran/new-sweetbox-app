@@ -11,7 +11,7 @@ const useCustomerData = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('https://668bd3e40b61b8d23b0b5aef.mockapi.io/sweet/sweet');
+        const response = await axios.get('https://sweets-admin-server-hh64.vercel.app/api/mainsweet/getmainsweet');
         const dataWithSubForms = response.data.map(customer => ({
           ...customer,
           subForms: customer.subForms || [],
@@ -28,12 +28,14 @@ const useCustomerData = () => {
     fetchData();
   }, []);
 
-  const deleteCustomer = async (customerId) => {
+  
+
+  const deleteCustomer = async (id) => {
     const userConfirmed = window.confirm("Are you sure you want to delete this record?");
     if (userConfirmed) {
       try {
-        await axios.delete(`https://668bd3e40b61b8d23b0b5aef.mockapi.io/sweet/sweet/${customerId}`);
-        setCustomerData(customerData.filter(customer => customer.id !== customerId));
+        await axios.delete(`https://sweets-admin-server-hh64.vercel.app/api/mainsweet/${id}`);
+        setCustomerData(customerData.filter(customer => customer._id !== id));
         toast.success("Successfully deleted");
       } catch (error) {
         console.error('Error deleting customer:', error);
@@ -41,8 +43,21 @@ const useCustomerData = () => {
       }
     }
   };
+  const updateCustomerStatus = async (id, status) => {
+    try {
+      const response = await axios.put(`https://sweets-admin-server-hh64.vercel.app/api/mainsweet/${id}`, { status });
+      setCustomerData(customerData.map(customer => 
+        customer._id === id ? response.data : customer
+      ));
+    } catch (err) {
+      setError(err);
+    }
+  };
 
-  return { customerData, loading, error, deleteCustomer };
+
+  return { customerData, loading, error, deleteCustomer, updateCustomerStatus };
 };
+
+
 
 export default useCustomerData;

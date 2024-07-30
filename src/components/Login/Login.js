@@ -1,42 +1,49 @@
 import React, { useState } from 'react';
-import {Avatar,Button,TextField,FormControlLabel,Checkbox,Box,Typography,Container,CircularProgress} from '@mui/material';
+import { Avatar, Button, TextField, FormControlLabel, Checkbox, Box, Typography, Container, CircularProgress } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../AuthContext'; // Adjust the import path as needed
 
 const defaultTheme = createTheme();
 
-export default function SignIn() {
+export default function Login() {
   const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState({ email: false, password: false });
+  const [errors, setErrors] = useState({ username: false, password: false });
+  const navigate = useNavigate();
+  const { login } = useAuth(); // Use the login function from AuthContext
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-
-    const email = data.get('email');
+  
+    const username = data.get('username');
     const password = data.get('password');
-
-    // Simple validation logic
+  
     let valid = true;
-    if (!email) {
+    if (!username) {
       valid = false;
-      setErrors((prev) => ({ ...prev, email: true }));
+      setErrors((prev) => ({ ...prev, username: true }));
     }
     if (!password) {
       valid = false;
       setErrors((prev) => ({ ...prev, password: true }));
     }
-
+  
     if (valid) {
       setLoading(true);
-      // Simulate API call
-      setTimeout(() => {
-        setLoading(false);
-        console.log({ email, password });
-      }, 2000);
+      try {
+        await login(username, password);
+        navigate('/'); // Navigate to home page after successful login
+      } catch (error) {
+        console.error('Login failed:', error); // Debug login failure
+      } finally {
+        setLoading(false); // Ensure loading state is reset
+      }
     }
   };
+  
 
   return (
     <ThemeProvider theme={defaultTheme}>
@@ -60,14 +67,14 @@ export default function SignIn() {
               margin="normal"
               required
               fullWidth
-              id="email"
+              id="username"
               label="Email Address"
-              name="email"
-              autoComplete="email"
+              name="username"
+              autoComplete="username"
               autoFocus
-              error={errors.email}
-              helperText={errors.email ? 'Email is required' : ''}
-              onChange={() => setErrors((prev) => ({ ...prev, email: false }))}
+              error={errors.username}
+              helperText={errors.username ? 'Email is required' : ''}
+              onChange={() => setErrors((prev) => ({ ...prev, username: false }))}
             />
             <TextField
               margin="normal"

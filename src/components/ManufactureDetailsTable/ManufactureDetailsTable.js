@@ -1,13 +1,27 @@
-import React, { useEffect, useState } from 'react';
-import { Table, TableHead, TableBody, TableRow, TableCell, Typography, Button, tableCellClasses } from '@mui/material';
-import { Print as PrintIcon, Description as DescriptionIcon } from '@mui/icons-material';
-import { styled } from '@mui/material/styles';
-import useCustomerData from '../../useCustomerData'; // Import the custom hook
-import { exportTableToExcel } from '../../exportTableToExcel';
+import React, { useEffect, useState } from "react";
+import {
+  Box,
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+  Typography,
+  Button,
+} from "@mui/material";
+import {
+  Print as PrintIcon,
+  Description as DescriptionIcon,
+} from "@mui/icons-material";
+import { styled } from "@mui/material/styles";
+import { tableCellClasses } from "@mui/material/TableCell";
+import useCustomerData from "../../useCustomerData"; // Import the custom hook
+import { exportTableToExcel } from "../../exportTableToExcel";
+import CustomerRow from "./CustomerRow"; // Import the CustomerRow component
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
-    backgroundColor: theme.palette.primary.dark,    // MUI default blue
+    backgroundColor: theme.palette.primary.dark,
     color: theme.palette.common.white,
   },
   [`&.${tableCellClasses.body}`]: {
@@ -15,7 +29,25 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
   },
 }));
 
-const EmptyCell = () => <TableCell />;
+const StyledTableRow = styled(TableRow)(({ theme }) => ({
+  '&:nth-of-type(odd)': {
+    backgroundColor: theme.palette.action.hover,
+  },
+  '&:hover': {
+    backgroundColor: theme.palette.action.selected,
+  },
+}));
+
+const StyledTableContainer = styled(Box)(({ theme }) => ({
+  overflowX: 'auto',
+  '& .MuiTableCell-root': {
+    border: '1px solid lightgray',
+    padding: theme.spacing(1),
+  },
+  '& .MuiTableHead-root .MuiTableCell-head': {
+    fontWeight: 'bold',
+  },
+}));
 
 const ManufactureDetailsTable = () => {
   const { customerData, loading, error } = useCustomerData();
@@ -31,12 +63,26 @@ const ManufactureDetailsTable = () => {
 
       customerData.forEach((customer) => {
         let totalKg = customer.sweet.reduce((total, item) => {
-          return total + calculateTotalGrams(customer.boxquantity, item.sweetgram, item.sweetquantity);
+          return (
+            total +
+            calculateTotalGrams(
+              customer.boxquantity,
+              item.sweetgram,
+              item.sweetquantity
+            )
+          );
         }, 0);
 
         customer.subForms.forEach((subForm) => {
           totalKg += subForm.sweet.reduce((total, item) => {
-            return total + calculateTotalGrams(subForm.boxquantity, item.sweetgram, item.sweetquantity);
+            return (
+              total +
+              calculateTotalGrams(
+                subForm.boxquantity,
+                item.sweetgram,
+                item.sweetquantity
+              )
+            );
           }, 0);
         });
 
@@ -52,11 +98,14 @@ const ManufactureDetailsTable = () => {
   };
 
   const handleExport = () => {
-    exportTableToExcel('orders-table', 'Orders');
+    exportTableToExcel("orders-table", "Orders");
   };
 
   if (loading) return <Typography variant="h4">Loading...</Typography>;
-  if (error) return <Typography variant="h4">Error fetching data: {error.message}</Typography>;
+  if (error)
+    return (
+      <Typography variant="h4">Error fetching data: {error.message}</Typography>
+    );
 
   return (
     <>
@@ -83,82 +132,45 @@ const ManufactureDetailsTable = () => {
         Export to Excel
       </Button>
 
-      <div className='printableArea'>
+      <StyledTableContainer>
         <Table id="orders-table">
           <TableHead>
-            <TableRow>
+            <StyledTableRow>
               <StyledTableCell>Name</StyledTableCell>
+              <StyledTableCell>Phone Number</StyledTableCell>
               <StyledTableCell>Order Date</StyledTableCell>
               <StyledTableCell>Delivery Date</StyledTableCell>
               <StyledTableCell>Delivery Time</StyledTableCell>
               <StyledTableCell>Box Type</StyledTableCell>
+              <StyledTableCell>Box Quantity</StyledTableCell>
+              <StyledTableCell>Delivery Center</StyledTableCell>
+              <StyledTableCell>Manufacturing Unit</StyledTableCell>
               <StyledTableCell>Box Weight</StyledTableCell>
               <StyledTableCell>Sweet Name</StyledTableCell>
               <StyledTableCell>Sweet Gram</StyledTableCell>
               <StyledTableCell>Sweet Quantity</StyledTableCell>
               <StyledTableCell>Box Quantity</StyledTableCell>
               <StyledTableCell>Total Grams (kg)</StyledTableCell>
-            </TableRow>
+            </StyledTableRow>
           </TableHead>
           <TableBody>
             {customerData && customerData.length > 0 ? (
               customerData.map((customer) => (
-                <React.Fragment key={customer.id}>
-                  <TableRow>
-                    <TableCell>{customer.cname}</TableCell>
-                    <TableCell>{customer.odate}</TableCell>
-                    <TableCell>{customer.ddate}</TableCell>
-                    <TableCell>{customer.dtime}</TableCell>
-                    <TableCell>{customer.boxtype === 'customEntry' ? customer.cuboxtype : customer.boxtype}</TableCell>
-                    <TableCell>{customer.sweetweight === 'customWeight' ? customer.cusweetweight : customer.sweetweight}</TableCell>
-                    <TableCell colSpan={4}>Main Sweets</TableCell>
-                  </TableRow>
-                  {customer.sweet.map((item, index) => (
-                    <TableRow key={`${customer.id}-${index}`}>
-                      {[...Array(6)].map((_, idx) => (
-                        <EmptyCell key={idx} />
-                      ))}
-                      <TableCell>{item.sweetname}</TableCell>
-                      <TableCell>{item.sweetgram}</TableCell>
-                      <TableCell>{item.sweetquantity}</TableCell>
-                      <TableCell>{customer.boxquantity}</TableCell>
-                      <TableCell>{calculateTotalGrams(customer.boxquantity, item.sweetgram, item.sweetquantity)} kg</TableCell>
-                    </TableRow>
-                  ))}
-                  {customer.subForms.map((subForm, subIndex) => (
-                    <React.Fragment key={`${customer.id}-subform-${subIndex}`}>
-                      <TableRow>
-                        <TableCell colSpan={6} />
-                        <TableCell colSpan={5}>Sub Menu {subIndex + 1}</TableCell>
-                      </TableRow>
-                      {subForm.sweet.map((item, index) => (
-                        <TableRow key={`${customer.id}-subform-${subIndex}-${index}`}>
-                          {[...Array(6)].map((_, idx) => (
-                            <EmptyCell key={idx} />
-                          ))}
-                          <TableCell>{item.sweetname}</TableCell>
-                          <TableCell>{item.sweetgram}</TableCell>
-                          <TableCell>{item.sweetquantity}</TableCell>
-                          <TableCell>{subForm.boxquantity}</TableCell>
-                          <TableCell>{calculateTotalGrams(subForm.boxquantity, item.sweetgram, item.sweetquantity)} kg</TableCell>
-                        </TableRow>
-                      ))}
-                    </React.Fragment>
-                  ))}
-                  <TableRow>
-                    <TableCell colSpan={9} align="right">Total KG for {customer.cname}</TableCell>
-                    <TableCell>{totalKgByCustomer[customer.id]?.toFixed(2)} kg</TableCell>
-                  </TableRow>
-                </React.Fragment>
+                <CustomerRow
+                  key={customer.id}
+                  customer={customer}
+                  totalKgByCustomer={totalKgByCustomer}
+                  calculateTotalGrams={calculateTotalGrams}
+                />
               ))
             ) : (
-              <TableRow>
-                <TableCell colSpan={10}>No data available</TableCell>
-              </TableRow>
+              <StyledTableRow>
+                <StyledTableCell colSpan={15}>No data available</StyledTableCell>
+              </StyledTableRow>
             )}
           </TableBody>
         </Table>
-      </div>
+      </StyledTableContainer>
     </>
   );
 };
