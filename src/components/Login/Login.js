@@ -55,7 +55,7 @@ export default function Login() {
                 required
                 fullWidth
                 id="username"
-                label="User Name"
+                label="UserName"
                 name="username"
                 autoComplete="username"
                 autoFocus
