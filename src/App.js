@@ -1,51 +1,39 @@
-import React, { useState } from 'react';
-import './App.css';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import React, { useContext } from 'react';
+import { Routes, Route } from 'react-router-dom';
 import AddForm from './components/AddForm/AddForm';
 import CustomerDetailsTable from './components/CustomerDetailsTable/CustomerDetailsTable';
 import Login from './components/Login/Login';
 import ManufactureDetailsTable from './components/ManufactureDetailsTable/ManufactureDetailsTable';
 import NavBar from './components/Navbar/Navbar';
-import NotFound from './pages/NotFound/NotFound'; // Corrected path to NotFound component
+import NotFound from './pages/NotFound/NotFound';
 import ProductionPage from './components/ProductionPage';
 import EditPost from './components/Edit/EditPost';
+import SweetBoxs from './SweetBoxs';
 import Dashboard from './components/Dashboard/Dashboard';
-import SweetBoxes from './SweetBoxs';
+import { AuthContext } from './components/AuthContext';
+import PrivateRoute from './components/PrivateRoute';
+import './App.css'
 
 function App() {
-  const [totalKgByCustomer, setTotalKgByCustomer] = useState({});
-
-  const handleTotalKgCalculated = (totals) => {
-    setTotalKgByCustomer(totals);
-  };
+  const { user } = useContext(AuthContext);
 
   return (
     <div className="App">
-      <Router>
-        <NavBar /> {/* Navbar will be displayed on all pages */}
-        <div className="content">
-          <Routes> {/* Wrapped Routes around Route components */}
-            <Route path="/" element={<AddForm />} /> {/* Ensure element prop is provided */}
-            <Route
-              path="/customerdetails"
-              element={<CustomerDetailsTable totalKgByCustomer={totalKgByCustomer}  />}
-            /> {/* Ensure element prop is provided */}
-            <Route
-              path="/manufacturedetails"
-              element={<ManufactureDetailsTable onTotalKgCalculated={handleTotalKgCalculated} />}
-            /> {/* Ensure element prop is provided */}
-            <Route path="/production" element={<ProductionPage />} /> {/* Corrected element prop */}
-            <Route path="/editpost/:id" element={<EditPost />} />
-            <Route path="/sweetbox" element={<SweetBoxes />} />
-            <Route path="/dashboard" element={<Dashboard />} />
+      {user && <NavBar />}
+      <div className="content">
+        <Routes>
+          <Route path="/" element={<PrivateRoute element={<AddForm />} />} />
+          <Route path="/customerdetails" element={<PrivateRoute element={<CustomerDetailsTable />} />} />
+          <Route path="/manufacturedetails" element={<PrivateRoute element={<ManufactureDetailsTable />} />} />
+          <Route path="/production" element={<PrivateRoute element={<ProductionPage />} />} />
+          <Route path="/editpost/:id" element={<PrivateRoute element={<EditPost />} />} />
+          <Route path="/dashboard" element={<PrivateRoute element={<Dashboard />} />} />
+          <Route path="/sweetbox" element={<PrivateRoute element={<SweetBoxs />} />} />
 
-
-            <Route path="/login" element={<Login />} /> {/* Ensure element prop is provided */}
-            <Route path="*" element={<NotFound />} /> {/* Catch-all route for 404 Not Found page */}
-          </Routes>
-        </div>
-        {/* <Footer /> Footer will be displayed on all pages */}
-      </Router>
+          <Route path="/login" element={<Login />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </div>
     </div>
   );
 }
