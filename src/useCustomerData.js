@@ -2,11 +2,21 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import CircularProgress from '@mui/material/CircularProgress';
+import Box from '@mui/material/Box';
 
 const useCustomerData = () => {
   const [customerData, setCustomerData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  function LoadingIndicator() {
+    return (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+            <CircularProgress />
+        </Box>
+    );
+}
 
   useEffect(() => {
     const fetchData = async () => {
@@ -55,7 +65,7 @@ const useCustomerData = () => {
   };
 
 
-  return { customerData, loading, error, deleteCustomer, updateCustomerStatus };
+  return { customerData, loading, error, deleteCustomer, updateCustomerStatus, LoadingIndicator  };
 };
 
 

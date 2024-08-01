@@ -61,7 +61,12 @@ const calculateTotalGrams = (boxQuantity, sweetGram, sweetQuantity) => {
   return (boxQuantity * sweetGram * sweetQuantity) / 1000; // Convert to kilograms
 };
 
-const aggregateSweetData = (aggregatedData, sweet, boxQuantity, deliveryDate) => {
+const aggregateSweetData = (aggregatedData, sweet, boxQuantity, deliveryDate, status) => {
+  if (status === 'Completed' || status === 'Delivered') {
+    
+    return; // Skip completed sweets
+  }
+
   const sweetName = sweet.sweetname.trim();
   let sweetGram = parseFloat(sweet.sweetgram);
   const sweetQuantity = parseInt(sweet.sweetquantity, 10);
@@ -99,16 +104,17 @@ const ProductionPage = () => {
       customerData.forEach((customer) => {
         const deliveryDate = customer.ddate;
         const boxQuantity = parseInt(customer.boxquantity, 10);
+        const status = customer.status; // Assuming the status is part of customer data
 
         customer.sweet.forEach((sweet) => {
-          aggregateSweetData(aggregatedData, sweet, boxQuantity, deliveryDate);
+          aggregateSweetData(aggregatedData, sweet, boxQuantity, deliveryDate, status);
         });
 
         if (customer.subForms) {
           customer.subForms.forEach((subForm) => {
             const subFormBoxQuantity = parseInt(subForm.boxquantity, 10);
             subForm.sweet.forEach((sweet) => {
-              aggregateSweetData(aggregatedData, sweet, subFormBoxQuantity, deliveryDate);
+              aggregateSweetData(aggregatedData, sweet, subFormBoxQuantity, deliveryDate, status);
             });
           });
         }

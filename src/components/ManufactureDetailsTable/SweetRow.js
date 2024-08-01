@@ -3,7 +3,7 @@ import { TableRow, TableCell } from "@mui/material";
 
 const SweetRow = ({ item, customer, calculateTotalGrams }) => (
   <TableRow>
-    <TableCell colSpan={10}></TableCell>
+    <TableCell colSpan={11}></TableCell>
     <TableCell>{item.sweetname}</TableCell>
     <TableCell>{item.sweetgram}</TableCell>
     <TableCell>{item.sweetquantity}</TableCell>

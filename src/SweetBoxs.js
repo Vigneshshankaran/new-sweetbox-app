@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Button from "@mui/material/Button";
-import ButtonGroup from "@mui/material/ButtonGroup";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import IconButton from "@mui/material/IconButton";
 import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
-import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import Select from "@mui/material/Select";
@@ -16,7 +14,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 const SweetBoxes = () => {
   const [sweetBoxes, setSweetBoxes] = useState([]);
-  const [showNewMenuForm, setShowNewMenuForm] = useState(false); // State to control form visibility
+  const [showNewMenuForm, setShowNewMenuForm] = useState(false);
   const [newMenuType, setNewMenuType] = useState("");
   const [newMenuWeight, setNewMenuWeight] = useState("");
   const [newSweetFields, setNewSweetFields] = useState([
@@ -39,21 +37,12 @@ const SweetBoxes = () => {
       });
   }, []);
 
-  const handleUpdate = (boxtype, sweetweight, updatedBox) => {
+  const handleUpdate = (boxId, updatedBox) => {
     axios
-      .put(
-        `http://localhost:5000/sweetboxes/${boxtype}/${sweetweight}`,
-        updatedBox
-      )
+      .put(`https://sweets-admin-server-hh64.vercel.app/api/sweets/${boxId}`, updatedBox)
       .then((response) => {
         console.log("Sweet box updated:", response.data);
-        const updatedSweetBoxes = sweetBoxes.map((box) => {
-          if (box.boxtype === boxtype && box.sweetweight === sweetweight) {
-            return response.data;
-          }
-          return box;
-        });
-        setSweetBoxes(updatedSweetBoxes);
+        setSweetBoxes(sweetBoxes.map(box => (box._id === boxId ? response.data : box)));
         toast.success("Sweet box updated successfully!");
       })
       .catch((error) => {
@@ -76,7 +65,7 @@ const SweetBoxes = () => {
     };
 
     axios
-      .post("https://sweets-admin-server-hh64.vercel.app/api/sweets", newMenu)
+      .post("https://sweets-admin-server-hh64.vercel.app/api/sweets/postdefaultsweet", newMenu)
       .then((response) => {
         console.log("Sweet box added:", response.data);
         setSweetBoxes([...sweetBoxes, response.data]);
@@ -87,7 +76,7 @@ const SweetBoxes = () => {
           { sweetname: "", sweetquantity: "", sweetgram: "" },
           { sweetname: "", sweetquantity: "", sweetgram: "" }
         ]);
-        setShowNewMenuForm(false); // Hide the form after adding the menu
+        setShowNewMenuForm(false);
         toast.success("Sweet box added successfully!");
       })
       .catch((error) => {
@@ -112,17 +101,13 @@ const SweetBoxes = () => {
     setSweetBoxes(updatedFields);
   };
 
-  const handleDeleteSweetBox = (boxtype, sweetweight) => {
+  const handleDeleteSweetBox = (boxId) => {
     const confirmDelete = window.confirm("Are you sure you want to delete this sweet box?");
     if (confirmDelete) {
       axios
-        .delete(`http://localhost:5000/sweetboxes/${boxtype}/${sweetweight}`)
-        .then((response) => {
-          console.log(response.data.message);
-          const updatedSweetBoxes = sweetBoxes.filter(
-            (box) => !(box.boxtype === boxtype && box.sweetweight === sweetweight)
-          );
-          setSweetBoxes(updatedSweetBoxes);
+        .delete(`https://sweets-admin-server-hh64.vercel.app/api/sweets/${boxId}`)
+        .then(() => {
+          setSweetBoxes(sweetBoxes.filter(box => box._id !== boxId));
           toast.success("Sweet box deleted successfully!");
         })
         .catch((error) => {
@@ -139,9 +124,8 @@ const SweetBoxes = () => {
       updatedSweetBoxes[boxIndex].sweets.splice(sweetIndex, 1);
       setSweetBoxes(updatedSweetBoxes);
 
-      // Optionally, update the server with the new state
       const updatedBox = updatedSweetBoxes[boxIndex];
-      handleUpdate(updatedBox.boxtype, updatedBox.sweetweight, updatedBox);
+      handleUpdate(updatedBox._id, updatedBox);
     }
   };
 
@@ -161,13 +145,12 @@ const SweetBoxes = () => {
     ]);
   };
 
-  // Filter sweet boxes based on selected menu and box type
   const filteredSweetBoxes = sweetBoxes.filter((box) => {
     const filterMenuLower = filterMenu.toLowerCase();
     const filterBoxTypeLower = filterBoxType.toLowerCase();
 
-    const boxMenuLower = box.boxtype ? box.boxtype.toLowerCase() : ""; // Handle undefined or null
-    const boxBoxTypeLower = box.sweetweight ? box.sweetweight.toLowerCase() : ""; // Handle undefined or null
+    const boxMenuLower = box.boxtype ? box.boxtype.toLowerCase() : "";
+    const boxBoxTypeLower = box.sweetweight ? box.sweetweight.toLowerCase() : "";
 
     if (filterMenu !== "Menu" && boxMenuLower !== filterMenuLower) {
       return false;
@@ -178,7 +161,6 @@ const SweetBoxes = () => {
     return true;
   });
 
-  // Extract unique menu types and box types
   const uniqueMenuTypes = Array.from(new Set(sweetBoxes.map((box) => box.boxtype ? box.boxtype.toLowerCase() : "")));
   const uniqueBoxTypes = Array.from(new Set(sweetBoxes.map((box) => box.sweetweight ? box.sweetweight.toLowerCase() : "")));
 
@@ -187,7 +169,7 @@ const SweetBoxes = () => {
       <ToastContainer />
       <h1>Sweet Menu</h1>
 
-      <FormControl fullWidth sx={{ marginBottom: 2,ml:4,  width: 1/4}}>
+      <FormControl fullWidth sx={{ marginBottom: 2, ml: 4, width: 1 / 4 }}>
         <InputLabel id="menu-label">Menu</InputLabel>
         <Select
           labelId="menu-label"
@@ -203,7 +185,7 @@ const SweetBoxes = () => {
         </Select>
       </FormControl>
 
-      <FormControl fullWidth sx={{ marginBottom: 2,  width: 1/4, ml:4}}>
+      <FormControl fullWidth sx={{ marginBottom: 2, width: 1 / 4, ml: 4 }}>
         <InputLabel id="boxtype-label">Box Type</InputLabel>
         <Select
           labelId="boxtype-label"
@@ -240,23 +222,14 @@ const SweetBoxes = () => {
                 fullWidth
               />
               <IconButton
-                type="button"
-                color="secondary"
-                aria-label="delete sweet box"
-                onClick={() =>
-                  handleDeleteSweetBox(box.boxtype, box.sweetweight)
-                }
+                color="error"
+                onClick={() => handleDeleteSweetBox(box._id)}
               >
                 <RemoveCircleOutlineIcon />
               </IconButton>
-            </Box>
-            <Box
-              sx={{
-                "& > :not(style)": { m: 1, width: "auto" },
-              }}
-            >
+
               <TextField
-                label="Sweet Weight"
+                label="Box Weight"
                 variant="outlined"
                 value={box.sweetweight}
                 onChange={(e) =>
@@ -270,13 +243,12 @@ const SweetBoxes = () => {
                 <Box
                   component="form"
                   sx={{
-                    "& > :not(style)": { m: 1, width: "auto", p: 1 },
+                    "& > :not(style)": { m: 1, width: "auto" },
                   }}
                   noValidate
                   autoComplete="off"
                 >
                   <TextField
-                    id={`sweet-name-${sweetIndex}`}
                     label="Sweet Name"
                     variant="outlined"
                     value={sweet.sweetname}
@@ -290,9 +262,15 @@ const SweetBoxes = () => {
                     }
                     fullWidth
                   />
+                  <IconButton
+                    color="error"
+                    onClick={() => handleDeleteSweetItem(boxIndex, sweetIndex)}
+                  >
+                    <RemoveCircleOutlineIcon />
+                  </IconButton>
+
                   <TextField
-                    id={`sweet-quantity-${sweetIndex}`}
-                    label="Sweet Quantity"
+                    label="Quantity"
                     variant="outlined"
                     value={sweet.sweetquantity}
                     onChange={(e) =>
@@ -306,7 +284,6 @@ const SweetBoxes = () => {
                     fullWidth
                   />
                   <TextField
-                    id={`sweet-gram-${sweetIndex}`}
                     label="Sweet Gram"
                     variant="outlined"
                     value={sweet.sweetgram}
@@ -320,169 +297,132 @@ const SweetBoxes = () => {
                     }
                     fullWidth
                   />
-                  <IconButton
-                    type="button"
-                    color="secondary"
-                    aria-label="remove sweet"
-                    onClick={() =>
-                      handleDeleteSweetItem(boxIndex, sweetIndex)
-                    }
-                  >
-                    <RemoveCircleOutlineIcon />
-                  </IconButton>
                 </Box>
               </div>
             ))}
-            <IconButton
-              type="button"
-              color="primary"
-              aria-label="add sweet"
+            <Button
+              variant="outlined"
               onClick={() => handleAddNewSweetField(boxIndex)}
             >
-              <AddCircleOutlineIcon />
-            </IconButton>
-            <ButtonGroup
-              disableElevation
+              Add New Sweet Item
+            </Button>
+            <Button
               variant="contained"
-              aria-label="Update button group"
-              sx={{ ml: 1, mt: 1, mb: 1.5 }}
+              color="primary"
+              onClick={() => handleUpdate(box._id, box)}
+              sx={{ mt: 2 }}
             >
-              <Button
-                onClick={() =>
-                  handleUpdate(box.boxtype, box.sweetweight, box)
-                }
-              >
-                Update
-              </Button>
-            </ButtonGroup>
+              Update
+            </Button>
           </div>
         ))
       ) : (
-        <p>No sweet boxes available.</p>
+        <div>No sweet boxes available</div>
       )}
 
-      <div>
-        <Button
-        sx={{m:2}}
-          variant="contained"
-          color="primary"
-          onClick={() => setShowNewMenuForm(true)}
-        >
-          Add New Sweet Box
-        </Button>
-        {showNewMenuForm && (
-          <div>
-            <Box
-              component="form"
-              sx={{
-                "& > :not(style)": { m: 1, width: "auto" },
-              }}
-              noValidate
-              autoComplete="off"
-            >
-              <TextField
-                label="Sweet Menu"
-                variant="outlined"
-                value={newMenuType}
-                onChange={(e) => setNewMenuType(e.target.value)}
-                fullWidth
-              />
-            </Box>
-            <Box
-              sx={{
-                "& > :not(style)": { m: 1, width: "auto" },
-              }}
-            >
-              <TextField
-                label="Sweet Weight"
-                variant="outlined"
-                value={newMenuWeight}
-                onChange={(e) => setNewMenuWeight(e.target.value)}
-                fullWidth
-              />
-            </Box>
-            {newSweetFields.map((sweet, index) => (
-              <div key={index}>
-                <Box
-                  component="form"
-                  sx={{
-                    "& > :not(style)": { m: 1, width: "auto", p: 1 },
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={() => setShowNewMenuForm(!showNewMenuForm)}
+        sx={{ mt: 2 }}
+      >
+        {showNewMenuForm ? "Cancel New Menu" : "Create New Menu"}
+      </Button>
+
+      {showNewMenuForm && (
+        <div>
+          <Box
+            component="form"
+            sx={{
+              "& > :not(style)": { m: 1, width: "auto" },
+            }}
+            noValidate
+            autoComplete="off"
+          >
+            <TextField
+              label="Sweet Menu"
+              variant="outlined"
+              value={newMenuType}
+              onChange={(e) => setNewMenuType(e.target.value)}
+              fullWidth
+            />
+            <TextField
+              label="Box Weight"
+              variant="outlined"
+              value={newMenuWeight}
+              onChange={(e) => setNewMenuWeight(e.target.value)}
+              fullWidth
+            />
+          </Box>
+          {newSweetFields.map((sweet, index) => (
+            <div key={index}>
+              <Box
+                component="form"
+                sx={{
+                  "& > :not(style)": { m: 1, width: "auto" },
+                }}
+                noValidate
+                autoComplete="off"
+              >
+                <TextField
+                  label="Sweet Name"
+                  variant="outlined"
+                  value={sweet.sweetname}
+                  onChange={(e) => {
+                    const updatedFields = [...newSweetFields];
+                    updatedFields[index].sweetname = e.target.value;
+                    setNewSweetFields(updatedFields);
                   }}
-                  noValidate
-                  autoComplete="off"
+                  fullWidth
+                />
+                <IconButton
+                  color="error"
+                  onClick={() => handleDeleteSweetItemForNewForm(index)}
                 >
-                  <TextField
-                    id={`new-sweet-name-${index}`}
-                    label="Sweet Name"
-                    variant="outlined"
-                    value={sweet.sweetname}
-                    onChange={(e) =>
-                      setNewSweetFields((prevState) => {
-                        const newState = [...prevState];
-                        newState[index].sweetname = e.target.value;
-                        return newState;
-                      })
-                    }
-                    fullWidth
-                  />
-                  <TextField
-                    id={`new-sweet-quantity-${index}`}
-                    label="Sweet Quantity"
-                    variant="outlined"
-                    value={sweet.sweetquantity}
-                    onChange={(e) =>
-                      setNewSweetFields((prevState) => {
-                        const newState = [...prevState];
-                        newState[index].sweetquantity = e.target.value;
-                        return newState;
-                      })
-                    }
-                    fullWidth
-                  />
-                  <TextField
-                    id={`new-sweet-gram-${index}`}
-                    label="Sweet Gram"
-                    variant="outlined"
-                    value={sweet.sweetgram}
-                    onChange={(e) =>
-                      setNewSweetFields((prevState) => {
-                        const newState = [...prevState];
-                        newState[index].sweetgram = e.target.value;
-                        return newState;
-                      })
-                    }
-                    fullWidth
-                  />
-                  <IconButton
-                    type="button"
-                    color="secondary"
-                    aria-label="remove sweet"
-                    onClick={() => handleDeleteSweetItemForNewForm(index)}
-                  >
-                    <RemoveCircleOutlineIcon />
-                  </IconButton>
-                </Box>
-              </div>
-            ))}
-            <IconButton
-              type="button"
-              color="primary"
-              aria-label="add sweet"
-              onClick={handleAddNewSweetFieldForNewForm}
-            >
-              <AddCircleOutlineIcon />
-            </IconButton>
-            <ButtonGroup
-              disableElevation
-              variant="contained"
-              aria-label="Add sweet button group"
-            >
-              <Button onClick={handleCreateNewMenu} sx={{mr:2}}>Add Sweet Box</Button>
-              <Button onClick={() => setShowNewMenuForm(false)}>Cancel</Button>
-            </ButtonGroup>
-          </div>
-        )}
-      </div>
+                  <RemoveCircleOutlineIcon />
+                </IconButton>
+
+                <TextField
+                  label="Quantity"
+                  variant="outlined"
+                  value={sweet.sweetquantity}
+                  onChange={(e) => {
+                    const updatedFields = [...newSweetFields];
+                    updatedFields[index].sweetquantity = e.target.value;
+                    setNewSweetFields(updatedFields);
+                  }}
+                  fullWidth
+                />
+                <TextField
+                  label="Sweet Gram"
+                  variant="outlined"
+                  value={sweet.sweetgram}
+                  onChange={(e) => {
+                    const updatedFields = [...newSweetFields];
+                    updatedFields[index].sweetgram = e.target.value;
+                    setNewSweetFields(updatedFields);
+                  }}
+                  fullWidth
+                />
+              </Box>
+            </div>
+          ))}
+          <Button
+            variant="outlined"
+            onClick={handleAddNewSweetFieldForNewForm}
+          >
+            Add New Sweet Item
+          </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleCreateNewMenu}
+            sx={{ mt: 2 }}
+          >
+            Create
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

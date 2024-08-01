@@ -15,6 +15,7 @@ const CustomerRow = ({ customer, totalKgByCustomer, calculateTotalGrams }) => {
         <TableCell>{customer.boxquantity}</TableCell>
         <TableCell>{customer.dunit}</TableCell>
         <TableCell>{customer.mplant}</TableCell>
+        <TableCell>{customer.status}</TableCell>
         <TableCell>{customer.sweetweight === "customWeight" ? customer.cusweetweight : customer.sweetweight}</TableCell>
         <TableCell colSpan={4}>Main Sweets</TableCell>
       </TableRow>
@@ -26,8 +27,8 @@ const CustomerRow = ({ customer, totalKgByCustomer, calculateTotalGrams }) => {
       {customer.subForms.map((subForm, subIndex) => (
         <React.Fragment key={`${customer.id}-subform-${subIndex}`}>
           <TableRow>
-            <TableCell colSpan={10}></TableCell>
-            <TableCell colSpan={5}><h4>Sub Menu {subIndex + 1}</h4> </TableCell>
+            <TableCell colSpan={11}></TableCell>
+            <TableCell colSpan={0}><h4>Sub Menu {subIndex + 1}</h4> </TableCell>
           </TableRow>
           {subForm.sweet.map((item, index) => (
             <SweetRow key={`${customer.id}-subform-${subIndex}-${index}`} item={item} customer={subForm} calculateTotalGrams={calculateTotalGrams} />
@@ -36,7 +37,7 @@ const CustomerRow = ({ customer, totalKgByCustomer, calculateTotalGrams }) => {
       ))}
 
       <TableRow>
-        <TableCell colSpan={14} align="right">
+        <TableCell colSpan={15} align="right">
           Total KG for {customer.cname}
         </TableCell>
         <TableCell>{totalKgByCustomer[customer.id]?.toFixed(2)} kg</TableCell>

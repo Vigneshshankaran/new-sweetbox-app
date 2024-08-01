@@ -52,7 +52,7 @@ const StyledTableContainer = styled(Box)(({ theme }) => ({
 }));
 
 const CustomerDetailsTable = () => {
-  const { customerData, loading, error, deleteCustomer, updateCustomerStatus } = useCustomerData();  // Destructure updateCustomerStatus here
+  const {loading, LoadingIndicator,customerData, error, deleteCustomer, updateCustomerStatus } = useCustomerData();  // Destructure updateCustomerStatus here
   const [search, setSearch] = useState('');
   const [expandedRows, setExpandedRows] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -121,7 +121,7 @@ const CustomerDetailsTable = () => {
     setSearch(event.target.value);
   };
 
-  if (loading) return <Typography variant="h4">Loading...</Typography>;
+  if (loading) return <LoadingIndicator />;
   if (error) return <Typography variant="h4">Error fetching data: {error.message}</Typography>;
 
   return (

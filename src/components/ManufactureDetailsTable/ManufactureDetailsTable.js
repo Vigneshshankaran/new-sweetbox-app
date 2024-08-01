@@ -145,6 +145,7 @@ const ManufactureDetailsTable = () => {
               <StyledTableCell>Box Quantity</StyledTableCell>
               <StyledTableCell>Delivery Center</StyledTableCell>
               <StyledTableCell>Manufacturing Unit</StyledTableCell>
+              <StyledTableCell>Status</StyledTableCell>
               <StyledTableCell>Box Weight</StyledTableCell>
               <StyledTableCell>Sweet Name</StyledTableCell>
               <StyledTableCell>Sweet Gram</StyledTableCell>

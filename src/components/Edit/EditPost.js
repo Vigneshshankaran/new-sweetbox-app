@@ -166,7 +166,7 @@ const EditPost = () => {
       }));
 
       const response = await axios.put(
-        `http://localhost:5000/api/mainsweet/${id}`,
+        `https://sweets-admin-server-hh64.vercel.app/api/mainsweet/${id}`,
         {
           ...formData,
           subForms: formattedSubForms,
