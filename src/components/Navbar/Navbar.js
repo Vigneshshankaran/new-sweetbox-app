@@ -29,7 +29,7 @@ const Navbar = () => {
   const navLinks = [
     { label: 'Production', to: '/production' },
     { label: 'Dashboard', to: '/dashboard' },
-    { label: 'Add Form', to: '/' },
+    { label: 'Add Sweets', to: '/' },
     { label: 'SweetBoxes', to: '/sweetbox' },
     { label: 'Customer Details', to: '/customerdetails' },
     { label: 'Manufacture Details', to: '/manufacturedetails' },

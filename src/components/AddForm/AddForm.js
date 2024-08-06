@@ -18,7 +18,6 @@ import { AddCircleOutline, RemoveCircleOutline } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import data from "../../data";
 import SubMenu from "./SubMenu";
 
 const AddForm = () => {
@@ -41,17 +40,35 @@ const AddForm = () => {
   });
   const [subForms, setSubForms] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [defaultSweets, setDefaultSweets] = useState([]);
+
   const navigate = useNavigate();
 
-  const getUniqueSweetWeights = () => {
-    const sweetWeights = data.map((menu) => menu.sweetweight);
-    return [...new Set(sweetWeights)];
+  const fetchDefaultSweets = async () => {
+    try {
+      const response = await axios.get('https://sweets-admin-server-hh64.vercel.app/api/sweets/getdefaultsweet');
+      return response.data;
+    } catch (error) {
+      console.error(error);
+      return [];
+    }
   };
+    useEffect(() => {
+      const fetchData = async () => {
+        const data = await fetchDefaultSweets();
+        setDefaultSweets(data);
+      };
+      fetchData();
+    }, []);
+    const getUniqueSweetWeights = () => {
+      const sweetWeights = defaultSweets.map((sweet) => sweet.sweetweight);
+      return [...new Set(sweetWeights)];
+    };
 
 
   useEffect(() => {
     if (formData.boxtype && formData.sweetweight) {
-      const selectedBox = data.find(
+      const selectedBox = defaultSweets.find(
         (box) =>
           box.boxtype === formData.boxtype &&
           box.sweetweight === formData.sweetweight
@@ -72,7 +89,7 @@ const AddForm = () => {
         }));
       }
     }
-  }, [formData.boxtype, formData.sweetweight]);
+  }, [formData.boxtype, formData.sweetweight,defaultSweets]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -338,7 +355,7 @@ const AddForm = () => {
           label="Box Type"
           required
         >
-          {data
+          {defaultSweets
             .filter((menu) => menu.sweetweight === formData.sweetweight)
             .map((menu, index) => (
               <MenuItem key={index} value={menu.boxtype}>
@@ -364,7 +381,7 @@ const AddForm = () => {
     <Grid item xs={12} >
         <h3>Main Menu</h3>
         {formData.sweet.map((sweet, index) => (
-          <Grid container spacing={2} key={index} > 
+          <Grid container spacing={2} key={index} marginBottom={1} > 
             {/* Add alignItems="center" to the Grid container */}
             <Grid item xs={12} sm={4} >
               <TextField
@@ -443,7 +460,10 @@ const AddForm = () => {
                 subFormData={subForm}
                 handleSubFormChange={(updatedSubFormData) =>
                   handleSubFormChange(index, updatedSubFormData)
+                
                 }
+                defaultSweets={defaultSweets} // Pass the defaultSweets array here
+
               />
               <Button 
               

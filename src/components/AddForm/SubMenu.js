@@ -9,20 +9,19 @@ import {
   IconButton,
 } from '@mui/material';
 import { AddCircleOutline, RemoveCircleOutline } from '@mui/icons-material';
-import data from '../../data';
 
-const SubMenu = ({ subFormData, handleSubFormChange, getUniqueSweetWeights }) => {
+const SubMenu = ({ subFormData, handleSubFormChange, getUniqueSweetWeights,defaultSweets  }) => {
   const [userEdited, setUserEdited] = useState(false);
 
   useEffect(() => {
-    const menu = data.find(m => m.sweetweight === subFormData.sweetweight && m.boxtype === subFormData.boxtype);
+    const menu = defaultSweets.find(m => m.sweetweight === subFormData.sweetweight && m.boxtype === subFormData.boxtype);
     if (menu && subFormData.boxtype !== 'customEntry' && !userEdited) {
       handleSubFormChange({
         ...subFormData,
         sweet: menu.sweets.map(sweet => ({ ...sweet, sweetquantity: 1 }))
       });
     }
-  }, [subFormData, userEdited, handleSubFormChange]); // Included subFormData in the dependency array
+  }, [subFormData, userEdited, handleSubFormChange,defaultSweets]); // Included subFormData in the dependency array
   
   
 
@@ -114,7 +113,7 @@ const SubMenu = ({ subFormData, handleSubFormChange, getUniqueSweetWeights }) =>
             label="Box Type"
             required
           >
-            {data
+            {defaultSweets 
               .filter((menu) => menu.sweetweight === subFormData.sweetweight)
               .map((menu, index) => (
                 <MenuItem key={index} value={menu.boxtype}>
@@ -139,7 +138,7 @@ const SubMenu = ({ subFormData, handleSubFormChange, getUniqueSweetWeights }) =>
 
       <Grid item xs={12}>
         {subFormData.sweet.map((sweet, index) => (
-          <Grid container spacing={2} key={index}> {/* Align items to center */}
+          <Grid container spacing={2} key={index} marginBottom={1}> {/* Align items to center */}
             <Grid item xs={12} sm={4}>
               <TextField
                 fullWidth

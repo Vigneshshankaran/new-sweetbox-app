@@ -13,12 +13,12 @@ const CustomerRow = ({ customer, expandedRows, handleRowExpand, handleDelete, ha
       <TableCell>{customer.odate}</TableCell>
       <TableCell>{customer.ddate}</TableCell>
       <TableCell>{customer.dtime}</TableCell>
+      <TableCell>{customer.dunit}</TableCell>
+      <TableCell>{customer.mplant}</TableCell>
       <TableCell>{customer.boxtype === 'customEntry' ? customer.cuboxtype : customer.boxtype}</TableCell>
       <TableCell>{customer.boxquantity}</TableCell>
       <TableCell>{customer.sweetweight === 'customWeight' ? customer.cusweetweight : customer.sweetweight}</TableCell>
       <TableCell colSpan={3}>{classifyCustomer(customer)}</TableCell>
-      <TableCell>{customer.dunit}</TableCell>
-      <TableCell>{customer.mplant}</TableCell>
       <TableCell>
         {customer.sweet.reduce((totalKg, item) => {
           return totalKg + (item.sweetgram * item.sweetquantity * customer.boxquantity) / 1000;
@@ -29,10 +29,10 @@ const CustomerRow = ({ customer, expandedRows, handleRowExpand, handleDelete, ha
           value={customer.status || ''}
           onChange={(e) => handleStatusChange(customer._id, e.target.value)}
         >
+          <MenuItem value="Confirmed">Confirmed</MenuItem>
+          <MenuItem value="In Progress">In Progress</MenuItem>   
           <MenuItem value="Pending">Pending</MenuItem>
           <MenuItem value="Completed">Completed</MenuItem>
-          <MenuItem value="In Progress">In Progress</MenuItem>   
-
           <MenuItem value="Delivered">Delivered</MenuItem>
         </Select>
       </TableCell>
@@ -56,7 +56,7 @@ const CustomerRow = ({ customer, expandedRows, handleRowExpand, handleDelete, ha
         {customer.subForms.map((subForm, subIndex) => (
           <React.Fragment key={`${customer._id}-subform-${subIndex}`}>
             <TableRow>
-              <TableCell colSpan={5} />
+              <TableCell colSpan={7} />
               <TableCell>{subForm.boxtype === 'customEntry' ? subForm.cuboxtype : subForm.boxtype}</TableCell>
               <TableCell>{subForm.boxquantity}</TableCell>
               <TableCell>{subForm.sweetweight === 'customWeight' ? subForm.cusweetweight : subForm.sweetweight}</TableCell>

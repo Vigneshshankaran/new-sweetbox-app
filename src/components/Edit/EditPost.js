@@ -58,16 +58,16 @@ const EditPost = () => {
         setIsLoading(true);
         const response = await axios.get(`https://sweets-admin-server-hh64.vercel.app/api/mainsweet/${id}`);
         const orderData = response.data;
-        setFormData({
-          ...orderData,
-          isCustomEntry: orderData.boxtype === 'customEntry' || orderData.sweetweight === 'customWeight',
-          userEdited: false,
-          // ddate: new Date(orderData.ddate), // Create Date object from string
-        });
+
+        // Format date strings to be compatible with MUI date fields
+        orderData.odate = new Date(orderData.odate).toISOString().split("T")[0];
+        orderData.ddate = new Date(orderData.ddate).toISOString().split("T")[0];
+
+        setFormData(orderData);
         setSubForms(orderData.subForms || []);
       } catch (error) {
-        console.error('Error fetching order data:', error);
-        toast.error('Error fetching order data!');
+        console.error("Error fetching order data:", error);
+        toast.error("Error fetching order data!");
       } finally {
         setIsLoading(false);
       }
@@ -167,44 +167,21 @@ const EditPost = () => {
 
       const response = await axios.put(
         `https://sweets-admin-server-hh64.vercel.app/api/mainsweet/${id}`,
-        {
-          ...formData,
-          subForms: formattedSubForms,
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
+        { ...formData, subForms: formattedSubForms }
       );
 
-      console.log('Response:', response.data);
-      setFormData({
-        cname: '',
-        phone: '',
-        ddate: '',
-        odate: '',
-        dtime: '',
-        boxtype: '',
-        boxquantity: '',
-        sweetweight: '',
-        sweet: [{ sweetname: '', sweetgram: '', sweetquantity: '1' }],
-        cuboxtype: '',
-        cusweetweight: '',
-        isCustomEntry: false,
-        userEdited: false
-      });
-      setSubForms([]);
-      toast.success('Data added successfully!');
+      console.log("Response:", response.data);
+      toast.success("Data updated successfully!");
       setTimeout(() => {
-        navigate('/customerdetails');
+        navigate("/customerdetails");
       }, 2000);
     } catch (error) {
       setIsLoading(false);
-      console.error('Error adding data:', error);
-      toast.error('Error adding data!');
+      console.error("Error updating data:", error);
+      toast.error("Error updating data!");
     }
   };
+
 
   
   return (
@@ -423,14 +400,18 @@ const EditPost = () => {
             Add Sweet
           </Button>
         </Grid>
-        {subForms.map((subForm, index) => (
-  <EditSubPost
-    key={index}
-    index={index}
-    subFormData={subForm}
-    handleSubFormChange={(updatedSubFormData) => handleSubFormChange(index, updatedSubFormData)}
-  />
-))}
+      
+
+{subForms.map((subForm, index) => (
+        <EditSubPost
+          key={index}
+          subFormData={subForm}
+          handleSubFormChange={(updatedSubFormData) =>
+            handleSubFormChange(index, updatedSubFormData)
+          }
+          getUniqueSweetWeights={() => [...new Set(data.map((menu) => menu.sweetweight))]} 
+        />
+      ))}
 
         <Grid item xs={12}>
           <Button

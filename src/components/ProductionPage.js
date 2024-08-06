@@ -1,27 +1,41 @@
-import React, { useEffect, useState } from 'react';
-import { Typography, Table, TableHead, TableBody, TableRow, TableCell, Button, Box } from '@mui/material';
-import { Print as PrintIcon, Description as DescriptionIcon } from '@mui/icons-material';
-import { styled } from '@mui/material/styles';
-import { exportTableToExcel } from '../exportTableToExcel'; // Adjust path as per your actual structure
+import React, { useEffect, useState } from "react";
+import {
+  Typography,
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+  Button,
+  Box,
+  CircularProgress,
+} from "@mui/material";
+import {
+  Print as PrintIcon,
+  Description as DescriptionIcon,
+} from "@mui/icons-material";
+import { styled } from "@mui/material/styles";
+import { exportTableToExcel } from "../exportTableToExcel"; // Adjust path as per your actual structure
+import "../App.css";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
-  '&.MuiTableCell-head': {
+  "&.MuiTableCell-head": {
     backgroundColor: theme.palette.primary.dark,
     color: theme.palette.common.white,
   },
-  '&.MuiTableCell-body': {
+  "&.MuiTableCell-body": {
     fontSize: 14,
   },
 }));
 
 const StyledTableContainer = styled(Box)(({ theme }) => ({
-  overflowX: 'auto',
-  '& .MuiTableCell-root': {
-    border: '1px solid lightgray',
+  overflowX: "auto",
+  "& .MuiTableCell-root": {
+    border: "1px solid lightgray",
     padding: theme.spacing(1),
   },
-  '& .MuiTableHead-root .MuiTableCell-head': {
-    fontWeight: 'bold',
+  "& .MuiTableHead-root .MuiTableCell-head": {
+    fontWeight: "bold",
   },
 }));
 
@@ -30,7 +44,7 @@ const handlePrint = () => {
 };
 
 const handleExport = () => {
-  exportTableToExcel('orders-table', 'Orders');
+  exportTableToExcel("orders-table", "Orders");
 };
 
 const useCustomerData = () => {
@@ -42,7 +56,9 @@ const useCustomerData = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const response = await fetch('https://sweets-admin-server-hh64.vercel.app/api/mainsweet/getmainsweet');
+        const response = await fetch(
+          "https://sweets-admin-server-hh64.vercel.app/api/mainsweet/getmainsweet"
+        );
         const data = await response.json();
         setCustomerData(data);
       } catch (error) {
@@ -61,9 +77,14 @@ const calculateTotalGrams = (boxQuantity, sweetGram, sweetQuantity) => {
   return (boxQuantity * sweetGram * sweetQuantity) / 1000; // Convert to kilograms
 };
 
-const aggregateSweetData = (aggregatedData, sweet, boxQuantity, deliveryDate, status) => {
-  if (status === 'Completed' || status === 'Delivered') {
-    
+const aggregateSweetData = (
+  aggregatedData,
+  sweet,
+  boxQuantity,
+  deliveryDate,
+  status
+) => {
+  if (status === "Completed" || status === "Delivered") {
     return; // Skip completed sweets
   }
 
@@ -73,8 +94,8 @@ const aggregateSweetData = (aggregatedData, sweet, boxQuantity, deliveryDate, st
 
   // Handle decimal values like '0.20 gm'
   if (sweet.sweetweight) {
-    const weightParts = sweet.sweetweight.split(' ');
-    if (weightParts.length === 2 && weightParts[1] === 'gm') {
+    const weightParts = sweet.sweetweight.split(" ");
+    if (weightParts.length === 2 && weightParts[1] === "gm") {
       sweetGram += parseFloat(weightParts[0]) / 1000;
     }
   }
@@ -107,34 +128,66 @@ const ProductionPage = () => {
         const status = customer.status; // Assuming the status is part of customer data
 
         customer.sweet.forEach((sweet) => {
-          aggregateSweetData(aggregatedData, sweet, boxQuantity, deliveryDate, status);
+          aggregateSweetData(
+            aggregatedData,
+            sweet,
+            boxQuantity,
+            deliveryDate,
+            status
+          );
         });
 
         if (customer.subForms) {
           customer.subForms.forEach((subForm) => {
             const subFormBoxQuantity = parseInt(subForm.boxquantity, 10);
             subForm.sweet.forEach((sweet) => {
-              aggregateSweetData(aggregatedData, sweet, subFormBoxQuantity, deliveryDate, status);
+              aggregateSweetData(
+                aggregatedData,
+                sweet,
+                subFormBoxQuantity,
+                deliveryDate,
+                status
+              );
             });
           });
         }
       });
 
       const groupedData = Object.values(aggregatedData);
-      groupedData.sort((a, b) => new Date(a.deliveryDate) - new Date(b.deliveryDate));
+      groupedData.sort(
+        (a, b) => new Date(a.deliveryDate) - new Date(b.deliveryDate)
+      );
       setProductionData(groupedData);
     }
   }, [customerData]);
+  if (loading) {
+    // This conditional was moved inside the component's return statement
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "200px",
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
 
-  if (loading) return <Typography variant="h4">Loading...</Typography>;
-  if (error) return <Typography variant="h4">Error fetching data: {error.message}</Typography>;
-
+  if (error) {
+    return (
+      <Typography variant="h4">
+        Error   fetching data: {error.message}
+      </Typography>
+    );
+  }
   return (
     <div>
       <Typography variant="h4" gutterBottom>
         Production Details
       </Typography>
-
       <Box sx={{ marginBottom: 2 }}>
         <Button
           variant="contained"
@@ -154,30 +207,47 @@ const ProductionPage = () => {
           Export to Excel
         </Button>
       </Box>
-      <StyledTableContainer>
-        <Table id="orders-table" sx={{ width: '100%', border: '1px solid #e0e0e0', borderCollapse: 'collapse' }}>
-          <TableHead>
-            <TableRow>
-              <StyledTableCell>Delivery Date</StyledTableCell>
-              <StyledTableCell>Sweet Name</StyledTableCell>
-              <StyledTableCell>Total Kilograms</StyledTableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {productionData.map((item, index) => (
-              <TableRow key={index}>
-                {index === 0 || productionData[index - 1].deliveryDate !== item.deliveryDate ? (
-                  <TableCell rowSpan={productionData.filter((data) => data.deliveryDate === item.deliveryDate).length}>
-                    {item.deliveryDate}
-                  </TableCell>
-                ) : null}
-                <TableCell>{item.sweetName}</TableCell>
-                <TableCell>{item.totalKg.toFixed(2)} kg</TableCell>
+      <div className="printableArea">
+        <StyledTableContainer>
+          <Table
+            id="orders-table"
+            sx={{
+              width: "100%",
+              border: "1px solid #e0e0e0",
+              borderCollapse: "collapse",
+            }}
+          >
+            <TableHead>
+              <TableRow>
+                <StyledTableCell>Delivery Date</StyledTableCell>
+                <StyledTableCell>Sweet Name</StyledTableCell>
+                <StyledTableCell>Total Kilograms</StyledTableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </StyledTableContainer>
+            </TableHead>
+            <TableBody>
+              {productionData.map((item, index) => (
+                <TableRow key={index}>
+                  {index === 0 ||
+                  productionData[index - 1].deliveryDate !==
+                    item.deliveryDate ? (
+                    <TableCell
+                      rowSpan={
+                        productionData.filter(
+                          (data) => data.deliveryDate === item.deliveryDate
+                        ).length
+                      }
+                    >
+                      {item.deliveryDate}
+                    </TableCell>
+                  ) : null}
+                  <TableCell>{item.sweetName}</TableCell>
+                  <TableCell>{item.totalKg.toFixed(2)} kg</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </StyledTableContainer>
+      </div>
     </div>
   );
 };
